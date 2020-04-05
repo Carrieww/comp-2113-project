@@ -25,9 +25,9 @@ Welcome to the "Tower of the programmer"! You are a novice programmer who are es
  * Enjoy this game and try to be a good programmer!  
 
 3. For Requirements
-   1. Apart from some big boss, other rivals are generated randomly for each game
+   1. Apart from some big bosses, other rivals are generated randomly for each game
    2. One data structure for storing the live location of the player, includeing the level of tower; One data structure for storing real-time character attribute
    3. 
    4. Use file output to save the current game status and, in the next time, file input for loading the player's game status 
-   5. The code of fixed_game_setting will be in other files
+   5. The code of fixed_game_setting and background_conversation will be in other files
 
