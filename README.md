@@ -21,12 +21,12 @@ Welcome to the "Tower of the programmer"! You are a novice programmer who are es
     Gold -- purchase  
     Keys(@, $, %) -- open the door in each level of the tower  
  * Battle rule: It is a turn based battle. For each turn, you will suffer a decrease in HP determined by (your rival's ATK - your DEF). Your rival will suffer a decrease in HP determined by (your ATK - your rival's DEF). When one's HP decreases below or equal to 0, the battle ends.
- * Special rules: Your EXP will increase by winning battles. You can collect, sell or buy special items to increase your ATK, DEF, HP and EXP. There are three keys: @, $ and % to open the door of corresponding symbols and the number of keys you possess will appear on your screen.  
+ * Special rules: Your EXP and gold will increase by winning battles. You can collect, sell or buy special items to increase your ATK, DEF, HP and EXP. There are three keys: @, $ and % to open the door of corresponding symbols and the number of keys you possess will appear on your screen.  
  * Enjoy this game and try to be a good programmer!  
 
-3. For Requirements
+3. List of features
    1. Apart from some big bosses, other rivals are generated randomly for each game
-   2. One data structure for storing the live location of the player, includeing the level of tower; One data structure for storing real-time character attribute
+   2. One data structure for storing the location of the player, including the level of tower and x/y-coordinate; One data structure for storing real-time character attribute
    3. 
    4. Use file output to save the current game status and, in the next time, file input for loading the player's game status 
    5. The code of fixed_game_setting and background_conversation will be in other files
