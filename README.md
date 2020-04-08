@@ -25,9 +25,9 @@ Welcome to the "Tower of the programmer"! You are a novice programmer who are es
  * Enjoy this game and try to be a good programmer!  
 
 3. List of features
-   1. Apart from some big bosses, other rivals are generated randomly for each game
-   2. One data structure for storing the location of the player, including the level of tower and x/y-coordinate; One data structure for storing real-time character attribute
-   3. 
-   4. Use file output to save the current game status and, in the next time, file input for loading the player's game status 
-   5. The code of fixed_game_setting and background_conversation will be in other files
+   1. Apart from some big bosses, other rivals are generated randomly for each game.
+   2. For the map, we will use a 2-dimension array to store the status of each point, e.g. rival, boss, door, wall, special item, etc. For the status of the player, we will use a 1-dimension array to store the attribute of the character plus the location of the character including the level of the tower and x/y-coordinate.
+   3. For each battle or other special situations, we will use dynamic memory management to optimize the efficiency of memory usage. For example, in each battle, we will need one more array to record the real-time attribute of the rival, and the memory for this array will be released after the battle ends.
+   4. Once the player decided to save the game status and leave, we will output a text file called "TofP_status.txt" to record the player's current status. If the program does not detect such text file named "TofP_status.txt", it will set level 1 as the default input, otherwise, it will input the file and load corresponding data. Remember to delete or rename this file if you want to have a new game.
+   5. Since each level of the tower is a bit different, we will use 4 different files to store different levels, and the player can simply execute our main program to get into the game.
 
