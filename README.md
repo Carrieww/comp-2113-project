@@ -10,7 +10,7 @@
 Welcome to the "Tower of the programmer"! You are a novice programmer who are especially interested in writing codes. And the most experienced and prestigous coding king in the world -- Dr. L, is trapped in one of the most dangerous places in this world, Tower of the programmer. Your task is to rescue Dr. L. Certainly, you have to sharpen your programing skills on the way of this adventure so as to achieve the highest level of programming and reach the top of the tower, where you can finally rescue Dr. L. Why would Dr. L be trapped in the tower? Who would you encounter in the tower? They are all left for you to discover. What are you waiting for? Come and join this wonderful adventure! 
 2. Basic game rules  
  * Maximum number of player: 1  
- * Basic operation: Player can use 'W', 'A', 'S', 'D' to control the character; 'ESC' to exit the game; 'S' to save the current game status; Other special operations, such as clicking 'i' for more information of rivals, will be instructed in the game. 
+ * Basic operation: Player can use 'UP', 'DOWN', 'LEFT', 'RIGHT' to control the character; 'ESC' to exit the game; 'S' to save the current game status; Other special operations, such as clicking 'i' for more information of rivals, will be instructed in the game. 
  * Character attribute:   
     ATK -- attack  
     DEF -- defense  
