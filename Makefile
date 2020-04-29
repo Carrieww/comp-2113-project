@@ -1,4 +1,4 @@
-FLAGS = -pedantic-errors -std=c++11
+FLAGS = -lncurses
 
 level_1.o: level_1.cpp level.h
 	g++ $(FLAGS) -c $<
