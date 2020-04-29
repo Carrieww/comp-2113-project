@@ -1,9 +1,9 @@
 #ifndef LEVEL_H
 #define LEVEL_H
 
-void level_1(int player_status[12]);
-void level_2(int player_status[12]);
-void level_3(int player_status[12]);
-void level_4(int player_status[12]);
+int floor_1_main(int* player_status[9], char* user_name);
+int floor_2_main(int* player_status[9], char* user_name);
+int floor_3_main(int* player_status[9], char* user_name);
+int floor_4_main(int* player_status[9], char* user_name);
 
 #endif
