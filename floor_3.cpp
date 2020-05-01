@@ -3,7 +3,7 @@
 #include <iostream>
 #include <time.h>
 #include <stdlib.h>
-#include "level.h"
+#include "floor.h"
 
 /* symbol used on floor 3
 #: Wall, space between walls is the door connecting different floor
@@ -756,4 +756,3 @@ int floor_3_main(int *role_attribute, char* user_name){
 	endwin();
 	return 0;
 }
-
