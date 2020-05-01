@@ -3,7 +3,7 @@
 #include <iostream>
 #include <time.h>
 #include <stdlib.h>
-#include "level.h"
+#include "floor.h"
 
 //  Screen Dumping
 //While writing games, some times it becomes necessary to store the state of the screen
@@ -667,4 +667,3 @@ int floor_2_main(int *role_attribute, char* user_name){
 	endwin();
 	return 0;
 }
-
