@@ -1,25 +1,26 @@
-FLAGS = -lncurses
+FLAG = -lncurses
+FLAGS2 = -pedantic-errors -std=c++11
 
-level_1.o: level_1.cpp level.h
-	g++ $(FLAGS) -c $<
+floor_1.o: floor_1.cpp floor.h
+	g++ $(FLAGS2) -c $<
 
-level_2.o: level_2.cpp level.h
-	g++ $(FLAGS) -c $<
+floor_2.o: floor_2.cpp floor.h
+	g++ $(FLAGS2) -c $<
 
-level_3.o: level_3.cpp level.h
-	g++ $(FLAGS) -c $<
+floor_3.o: floor_3.cpp floor.h
+	g++ $(FLAGS2) -c $<
 
-level_4.o: level_4.cpp level.h
-	g++ $(FLAGS) -c $<
+floor_4.o: floor_4.cpp floor.h
+	g++ $(FLAGS2) -c $<
 
-main.o: main.cpp level.h
-	g++ $(FLAGS) -c $<
+main.o: main.cpp floor.h
+	g++ $(FLAGS2) -c $<
 
-main: main.o level_1.o level_2.o level_3.o level_4.o
-	g++ $(FLAGS) $^ -o $@
+main: main.o floor_1.o floor_2.o floor_3.o floor_4.o
+	g++ $(FLAGS2) $^ -o $@ $(FLAG)
 
 clean:
-	rm -f main level_1.o level_2.o level_3.o level_4.o main.o main.tgz
+	rm -f main floor_1.o floor_2.o floor_3.o floor_4.o main.o main.tgz
 
 tar:
 	tar -czvf main.tgz *.cpp *.h
