@@ -1,11 +1,11 @@
 #include <iostream>
+#include "floor.h"
 #include <fstream>
-#include "level.h"
 using namespace std;
 
 int main(){
   ifstream fin;
-  int player_status[12] = {1,1,1,1,0,100,10,5,0,0,0,0};
+  int player_status[9] = {2,1000,10,10,20,50,10,0,0};
   // [0]: level of tower
   // [1]: x-coordinate
   // [2]: y-coordinate
@@ -18,21 +18,23 @@ int main(){
   // [9]: player's '@' key
   // [10]: player's '$' key
   // [11]: player's '%' key
-
   fin.open("TofP_status.txt");
   if (fin.is_open()){
     for (int i=0;i<12;i++){
       fin >> player_status[i];
     }
   }
-  // read data from 'TofP_status.txt'
+  fin.close();
 
-  if (player_status[0] == 1){level_1(player_status);}
-  else if (player_status[0] == 2){level_2(player_status);}
-  else if (player_status[0] == 3){level_3(player_status);}
-  else if (player_status[0] == 4){level_4(player_status);};
+  // read data from 'TofP_status.txt'
+  char user_name[10];
+  cout << "please input your name (<10 characters):";
+  cin >> user_name;
+  if (player_status[0] == 1){floor_1_main(player_status,user_name);}
+  else if (player_status[0] == 2){floor_2_main(player_status,user_name);}
+  else if (player_status[0] == 3){floor_3_main(player_status,user_name);}
+  else if (player_status[0] == 4){floor_4_main(player_status,user_name);};
   // call functions of different levels
 
-  fin.close();
   return 0;
 }
