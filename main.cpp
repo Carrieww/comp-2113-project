@@ -20,7 +20,7 @@ int main(){
   // [11]: player's '%' key
   fin.open("TofP_status.txt");
   if (fin.is_open()){
-    for (int i=0;i<12;i++){
+    for (int i=0;i<9;i++){
       fin >> player_status[i];
     }
   }
