@@ -929,7 +929,7 @@ void shopping(int *role_attribute){
   printf("\033[K");
 }
 //use getch_l1() to read user input_l1 prumptly
-void input_l1(int* role_attribute, std::string user_name){
+void input_l1(int* role_attribute, std::string user_name, bool &GameOver){
 	if(IsH_l1 == true){
 		print_prumpt_l1('H', role_attribute);
 		IsH_l1 = false;
@@ -990,20 +990,21 @@ void input_l1(int* role_attribute, std::string user_name){
 			dir_l1 = RIGHT;
 			break;
 		case 'q':
-			GameOver_l1 = true;
+			GameOver = true;
+			dir_l1 = STOP;
 			break;
 		case 'i':
 			Is_Info_l1 = true;
 			break;
 		default:
 		//it is like a loop
-			input_l1(role_attribute, user_name);
+			input_l1(role_attribute, user_name, GameOver);
 			break;
 	}
 }
 
 
-void logic_function_1_l1(int x, int y, int &change, int b, bool is_down,bool is_up, int* role_attribute, std::string user_name){
+void logic_function_1_l1(int x, int y, int &change, int b, bool is_down,bool is_up, int* role_attribute, std::string user_name, bool &GameOver){
 	//if the cell is wall_l1, then not move
 	if(mvinch_l1(x, y) == '#'){
 
@@ -1013,7 +1014,7 @@ void logic_function_1_l1(int x, int y, int &change, int b, bool is_down,bool is_
 
 	//if the cell is the door to floor_2, then go to floor_2
 }else if(x == 0 && y == 20 && is_up == true){
-		floor_2_main(role_attribute,user_name);
+		floor_2_main(role_attribute,user_name, GameOver);
 
 	//it is a door
 }else if(mvinch_l1(x, y) == '@'){
@@ -1072,19 +1073,19 @@ void logic_function_1_l1(int x, int y, int &change, int b, bool is_down,bool is_
 }
 
 //move up and down to generate different reactions
-void logic_l1(int* role_attribute, std::string user_name){
+void logic_l1(int* role_attribute, std::string user_name, bool &GameOver){
 	switch (dir_l1) {
 		case UP:
-		logic_function_1_l1(x_l1-1,y_l1,x_l1,-1,false, true, role_attribute, user_name);
+		logic_function_1_l1(x_l1-1,y_l1,x_l1,-1,false, true, role_attribute, user_name, GameOver);
 			break;
 		case DOWN:
-		logic_function_1_l1(x_l1+1,y_l1,x_l1,1,true, false, role_attribute, user_name);
+		logic_function_1_l1(x_l1+1,y_l1,x_l1,1,true, false, role_attribute, user_name,GameOver);
 			break;
 		case LEFT:
-			logic_function_1_l1(x_l1,y_l1-1,y_l1,-1, false, false, role_attribute, user_name);
+			logic_function_1_l1(x_l1,y_l1-1,y_l1,-1, false, false, role_attribute, user_name,GameOver);
 			break;
 		case RIGHT:
-			logic_function_1_l1(x_l1,y_l1+1,y_l1,1, false, false, role_attribute, user_name);
+			logic_function_1_l1(x_l1,y_l1+1,y_l1,1, false, false, role_attribute, user_name,GameOver);
 			break;
 		default:
 			break;
@@ -1092,21 +1093,23 @@ void logic_l1(int* role_attribute, std::string user_name){
   dir_l1 = STOP;
 }
 
-void floor_1_main(int *role_attribute, std::string user_name){
+void floor_1_main(int *role_attribute, std::string user_name, bool &GameOver){
   srand (time(NULL));
-  for (int i=0;i<=11;i++){
-    for (int j=0;j<=21;j++ ){
-      wall_l1[i][j] =false;
-    }
-  }
-	//start a loop
-	if (count_Setup_l1_l1 == 0){
-		Setup_l1();
-		count_Setup_l1_l1++;
-	}
-	while(!GameOver_l1){
-		Draw_l1(role_attribute);
-		input_l1(role_attribute, user_name);
-		logic_l1(role_attribute, user_name);
+	if(GameOver == false){
+		for (int i=0;i<=11;i++){
+	    for (int j=0;j<=21;j++ ){
+	      wall_l1[i][j] =false;
+	    }
+	  }
+		//start a loop
+		if (count_Setup_l1_l1 == 0){
+			Setup_l1();
+			count_Setup_l1_l1++;
+		}
+		while(!GameOver){
+			Draw_l1(role_attribute);
+			input_l1(role_attribute, user_name, GameOver);
+			logic_l1(role_attribute, user_name, GameOver);
+		}
 	}
 }
