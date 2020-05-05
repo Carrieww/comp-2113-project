@@ -1,15 +1,11 @@
 //Floor 2
-#include <ncurses.h>
 #include <iostream>
-#include <time.h>
-#include <stdlib.h>
-#include "floor.h"
-
-//  Screen Dumping
-//While writing games, some times it becomes necessary to store the state of the screen
-//restore it back to the same state. The function scr_dump() can be used to dump the screen contents to a file given as an argument.
-//Later it can be restored by scr_restore function. These two simple functions can be used effectively to maintain a fast moving game with changing scenarios.
-
+#include <ctime>
+#include <unistd.h>
+#include <termios.h>
+#include <string>
+#include "level.h"
+using namespace std;
 
 /* symbol used on floor 2
 #: Wall, space between walls is the door connecting different floor
@@ -20,15 +16,15 @@ D: DEF_box, increase 5 DEF
 $: special door on the second floor    &: the key for $ on the third floor
 !: surprising_box, sword and diamond(finish it and give it to Q on the third floor to know more info about Dr.L)
 M: monsters with fixed positions
-0: monsters with random positions
+m: monsters with random positions
 */
 
 //global variables
-const int width = 20, height = 10, num_fixed_monster = 11, num_fixed_door = 4, num_random_monster=4,
-num_fixed_HP_box = 6, num_fixed_ATK_box = 3, num_fixed_DEF_box = 4, num_fixed_surprising_box = 2, num_fixed_key = 4;
-int printable_num_fixed_door = 4, printable_num_fixed_monster = 11, printable_num_random_monster = 4,
-printable_num_fixed_HP_box = 6, printable_num_fixed_ATK_box = 3, printable_num_fixed_DEF_box = 4, printable_num_fixed_surprising_box = 2, printable_num_fixed_key = 4;
-
+const int width = 20, height = 10;
+//fixed monster's x,y
+int m_x_l2, m_y_l2;
+int num_random_monster,num_fixed_monster, num_fixed_door, num_fixed_DEF_box, num_fixed_ATK_box,
+num_fixed_HP_box, num_fixed_key, num_fixed_surprising_box;
 //store everything with position into catagory and into this struct
 struct Fixed_sth_coordinate{
 	int x;
@@ -36,183 +32,221 @@ struct Fixed_sth_coordinate{
 	int ATK;
 	int DEF;
 	int HP;
-	char type;
+	int type;
 };
 //use struct to store fixed and random monster's attribute, treasure's/door's/boxes' position,
-Fixed_sth_coordinate monster[num_fixed_monster];
-Fixed_sth_coordinate door[num_fixed_door];
+Fixed_sth_coordinate * monster = new Fixed_sth_coordinate[num_fixed_monster];
+Fixed_sth_coordinate * door = new Fixed_sth_coordinate[num_fixed_door];
 Fixed_sth_coordinate special_door[1];
-Fixed_sth_coordinate key[num_fixed_key];
-Fixed_sth_coordinate random_monster[num_random_monster];
-Fixed_sth_coordinate HP_box[num_fixed_HP_box];
-Fixed_sth_coordinate ATK_box[num_fixed_ATK_box];
-Fixed_sth_coordinate DEF_box[num_fixed_DEF_box];
-Fixed_sth_coordinate surprising_box[num_fixed_surprising_box];
+Fixed_sth_coordinate * key = new Fixed_sth_coordinate[num_fixed_key];
+Fixed_sth_coordinate * random_monster = new Fixed_sth_coordinate[num_random_monster];
+Fixed_sth_coordinate * HP_box = new Fixed_sth_coordinate[num_fixed_HP_box];
+Fixed_sth_coordinate * ATK_box = new Fixed_sth_coordinate[num_fixed_ATK_box];
+Fixed_sth_coordinate * DEF_box = new Fixed_sth_coordinate[num_fixed_DEF_box];
+Fixed_sth_coordinate * surprising_box = new Fixed_sth_coordinate[num_fixed_surprising_box];
 
-//small monster position
-int x, y,small_monster_1x, small_monster_1y,small_monster_2x,
-small_monster_2y, small_monster_3x, small_monster_3y, small_monster_4x, small_monster_4y;
+int x, y;
+int count_setup_l2 = 0, Floor_l2 = 2;
 
-int count_setup = 0, Floor = 2;
-
-bool GameOver, save, IsH, IsA, IsD, Is_Sur, Is_Info, open_special_door = false;
+bool wall[12][22],GameOver, save, IsM, IsH, IsA, IsD, Is_Sur, Is_Info, open_special_door = false;
 enum eDirection{STOP = 0, LEFT, RIGHT, UP, DOWN};
 eDirection dir;
 
+//all functions used in floor 2
+//mimic move()in ncurses
+void move(int x,int y);
+//clear the screen
+void clear();
+//mimic getch() in ncurses, read user input without pressing entry
+int getch(void);
+//mimic mvinch() in ncurses, check the char at (x,y) position
+char mvinch(int x, int y);
+//use dynamic array to store all treasures except the wall by adding entrys
+Fixed_sth_coordinate * addEntry(Fixed_sth_coordinate * array, int & size, int x, int y);
+//after collecting the treasure or killing monsters, delete that entry
+void deleteEntry(Fixed_sth_coordinate * &array, int & size, int x, int y);
+//calculate hp_needed to beat random monster 'm'
+int hp_needed_beat_m(int role_ATK, int role_DEF);
+//click 's', save status into .txt file in gamestatus folder
+void saving_status(string user_name);
+// when click 'i' for more info of rivals in Floor 2
+void show_info(int *role_attribute);
+//upgrade when exp reaches 99
+void upgrade(int* role_attribute);
+//when encountering M, questions will be printed.
+//once answer it correctly, M will disappear, player can move
+void ask_questions(int * role_attribute,int x, int y);
+//when encountering treasures, print notifications
+void print_prumpt(char n, int* role_attribute);
+//every time attacking rivals or collecting treasures
+//we need to update role_attribute on the screen
+void update_attribute(int hp_value, int atk_value, int def_value,
+	int add_exp, int add_gold, int* role_attribute);
+
+//main functions
+//setup all positions in this floor
+void Setup();
+//print the map
+void Draw(int *role_attribute);
+//check what is the char in the cell that the role is moving to
+//different reaction regarding different cases
+//we need to delete things except the wall(we should not print them in the next loop)
+void logic_function_1(int x, int y, int &change, int b, bool is_down,bool is_up, int *role_attribute, string user_name);
+//print notifications or interact with users (if any), then get user input
+void input(int * role_attribute, string user_name);
+//move up and down to generate different reactions
+void logic(int* role_attribute, string user_name);
+
+
+
+//floor_2_main function
+void floor_2_main(int *role_attribute, string user_name){
+	srand (time(NULL));
+
+	for (int i=0;i<=11;i++){
+    for (int j=0;j<=21;j++ ){
+      wall[i][j] = false;
+    }
+  }
+
+	//start a loop
+	if (count_setup_l2 == 0){
+		Setup();
+		count_setup_l2++;
+	}
+	while(!GameOver){
+		Draw(role_attribute);
+		input(role_attribute, user_name);
+		logic(role_attribute, user_name);
+	}
+}
+
+void move(int x,int y){
+  printf("\033[%d;%dH", (x+1), (y+1));
+}
+void clear(){
+  printf("\033[2J");
+}
+int getch(void)
+{
+    struct termios oldattr, newattr;
+    int ch;
+    tcgetattr( STDIN_FILENO, &oldattr );
+    newattr = oldattr;
+    newattr.c_lflag &= ~( ICANON | ECHO );
+    tcsetattr( STDIN_FILENO, TCSANOW, &newattr );
+    ch = getchar();
+    tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
+    return ch;
+}
+
+char mvinch(int x, int y){
+  if (wall[y][x] == true){
+    return ('#');
+  }
+	//check if the char is M
+	for(int k = 0; k < num_fixed_monster; ++k){
+    if (monster[k].x == x && monster[k].y == y){
+      return ('M');
+    }
+	}
+	//check if the char is doors
+	for(int k = 0; k < num_fixed_door; ++k){
+		if(door[k].x == x &&  door[k].y== y){
+      return ('@');
+    }
+	}
+	//check if the char is random monsters
+	for(int k = 0; k < num_random_monster; ++k){
+		if(random_monster[k].x == x &&  random_monster[k].y== y){
+      return ('m');
+    }
+	}
+	//check if the char is surprising_box
+	for(int k = 0; k < num_fixed_surprising_box; ++k){
+		if(surprising_box[k].x == x &&  surprising_box[k].y== y){
+      return ('!');
+    }
+	}
+	//check if the char is special door
+	for(int k = 0; k < 1; ++k){
+		if(special_door[k].x == x && special_door[k].y == y && open_special_door == false){
+      return ('$');
+    }
+	}
+	//check if the char is HP_box
+	for(int k = 0; k < num_fixed_HP_box; ++k){
+		if(HP_box[k].x ==x &&  HP_box[k].y == y){
+      return ('H');
+    }
+	}
+
+	//check if the char is ATK_box
+	for(int k = 0; k < num_fixed_ATK_box; ++k){
+		if(ATK_box[k].x ==x && ATK_box[k].y==y){
+      return ('A');
+    }
+	}
+
+	//check if the char is DEF_box
+	for(int k = 0; k < num_fixed_DEF_box; ++k){
+		if(DEF_box[k].x ==x &&DEF_box[k].y==y){
+      return ('D');
+    }
+	}
+
+	//check if the char is keys
+	for(int k = 0; k < num_fixed_key; ++k){
+		if(key[k].x ==x &&key[k].y == y){
+      return ('^');
+    }
+	}
+  return (' ');
+
+}
+
 //function: calculate hp_needed to beat monster '0'
-int hp_needed_beat_0(int role_ATK, int role_DEF){
-	int hp_needed_beat_0;
+int hp_needed_beat_m(int role_ATK, int role_DEF){
+	int hp_needed_beat_m;
 	//when role_ATK <= rival_DEF, it means we can not attack the rival
 	if(role_ATK <= random_monster[1].DEF){
-		hp_needed_beat_0 = -1;
+		hp_needed_beat_m = -1;
 	//when role_ATK > rival_DEF, attack results in decreases in hp
 	//if rival_ATK <= role_ATK, their attack can not hurt me
 	}else if (random_monster[1].ATK <= role_DEF && role_ATK > random_monster[1].DEF){
-		hp_needed_beat_0 = 0;
+		hp_needed_beat_m = 0;
 	}else if ((random_monster[1].HP % (role_ATK-random_monster[1].DEF)) == 0 && role_ATK > random_monster[1].DEF){
-		hp_needed_beat_0 = (random_monster[1].ATK-role_DEF)*((random_monster[1].HP/(role_ATK-random_monster[1].DEF))-1);
+		hp_needed_beat_m = (random_monster[1].ATK-role_DEF)*((random_monster[1].HP/(role_ATK-random_monster[1].DEF))-1);
 	}else if ((random_monster[1].HP % (role_ATK-random_monster[1].DEF)) != 0 && role_ATK > random_monster[1].DEF){
-		hp_needed_beat_0 = (random_monster[1].ATK-role_DEF)*(random_monster[1].HP/(role_ATK-random_monster[1].DEF));
+		hp_needed_beat_m = (random_monster[1].ATK-role_DEF)*(random_monster[1].HP/(role_ATK-random_monster[1].DEF));
 	}
-	return hp_needed_beat_0;
+	return hp_needed_beat_m;
 }
 
-//function: calculate hp_needed to beat monster 'M'
-int hp_needed_beat_M(int role_ATK, int role_DEF){
-	int hp_needed_beat_M;
-	if(role_ATK <= monster[1].DEF){
-		hp_needed_beat_M = -1;
-	}else if (monster[1].ATK <= role_DEF && role_ATK > monster[1].DEF){
-		hp_needed_beat_M = 0;
-	}else if (monster[1].HP % (role_ATK-monster[1].DEF) == 0 && role_ATK > monster[1].DEF){
-		hp_needed_beat_M = (monster[1].ATK-role_DEF)*((monster[1].HP/(role_ATK-monster[1].DEF))-1);
-	}else if (monster[1].HP % (role_ATK-monster[1].DEF) != 0 && role_ATK > monster[1].DEF){
-		hp_needed_beat_M = (monster[1].ATK-role_DEF)*(monster[1].HP/(role_ATK-monster[1].DEF));
-	}
-	return hp_needed_beat_M;
-}
 //function: click 's', save status into .txt file in gamestatus folder
-void saving_status(char* user_name){
+void saving_status(string user_name){
 	move(12,0);
-	char filename[40] = "game_status/";
-	strcat(filename, user_name);
-	strcat(filename, "_floor_2.txt");
-	scr_dump(filename);
-	printw("game status already saved!\ngame over...");
+	string filename = "game_status/" + user_name + "_floor_2.txt";
+	cout << "game status already saved!\ngame over...";
 	GameOver = true;
 }
 
 // when click 'i' for more info of rivals in Floor 2
 void show_info(int* role_attribute){
-	int hp_0 = hp_needed_beat_0(role_attribute[3], role_attribute[4]);
-	int hp_M = hp_needed_beat_M(role_attribute[3], role_attribute[4]);
+	int hp_m = hp_needed_beat_m(role_attribute[3], role_attribute[4]);
 	//print all information of monsters in Floor 2
 	//if we can not attack the monster
 	//the attack can not hurt them or hp_needed_kill_them > role_HP
 	//just show ???
 	move(12,0);
-	printw("Here is some information about rivals in Floor %d:\n", Floor);
-	if (hp_0 < 0){
-		printw("random monster '0': HP:  %d ATK: %d DEF:  %d HP_needed: ???\n", random_monster[1].HP, random_monster[1].ATK, random_monster[1].DEF);
+	cout << "Here is some information about rivals in Floor "<<Floor_l2 << ": "<< endl;;
+	if (hp_m < 0){
+		cout << "random monster 'm': HP:  "<<random_monster[1].HP<<" ATK: "<<random_monster[1].ATK<<" DEF:  "<< random_monster[1].DEF<<" HP_needed: ???"<< endl;
 	}else{
-		printw("random monster '0': HP:  %d ATK: %d DEF:  %d HP_needed: %d\n", random_monster[1].HP, random_monster[1].ATK, random_monster[1].DEF, hp_0);
+		cout << "random monster 'm': HP:  "<<random_monster[1].HP<<" ATK: "<<random_monster[1].ATK<<" DEF:  "<< random_monster[1].DEF<<" HP_needed: "<<hp_m<< endl;
 	}
-	if (hp_M < 0){
-		printw("fixed monster 'M': HP:  %d ATK: %d DEF:  %d HP_needed: ???\n", monster[1].HP, monster[1].ATK, monster[1].DEF);
-	}else{
-		printw("fixed monster 'M': HP:  %d ATK: %d DEF:  %d HP_needed: %d\n", monster[1].HP, monster[1].ATK, monster[1].DEF, hp_M);
-	}
-	printw("'!' represents treasures. They will help you.\n");
+	cout <<"'!' represents treasures. They will help you.\n";
 
-}
-
-//find the element in the correspond struct
-//move the element after that in the struct forward
-//when printing map next time, only print up to printable number
-//things being collected or attacked will not be shown
-void delete_sth(int x, int y, char n){
-	if(n == '@'){
-		for(int i = 0; i < printable_num_fixed_door; ++i){
-			if (door[i].x == x && door[i].y == y){
-				for(int j = i; j < printable_num_fixed_door - 1; ++j){
-					door[j].x = door[j+1].x;
-					door[j].y = door[j+1].y;
-					door[j].type = door[j+1].type;
-				}
-			}
-		}
-		printable_num_fixed_door--;
-	}else if (n == 'M'){
-		for(int i = 0; i < printable_num_fixed_monster;++i){
-			if(monster[i].x == x && monster[i].y == y){
-				for(int j = i; j < printable_num_fixed_monster - 1; ++j){
-					monster[j].x = monster[j+1].x;
-					monster[j].y = monster[j+1].y;
-				}
-			}
-		}
-		printable_num_fixed_monster--;
-	}else if (n == '0'){
-		for(int i = 0; i < printable_num_random_monster;++i){
-			if(random_monster[i].x == x && random_monster[i].y == y){
-				for(int j = i; j < printable_num_random_monster - 1; ++j){
-					random_monster[j].x = random_monster[j+1].x;
-					random_monster[j].y = random_monster[j+1].y;
-				}
-			}
-		}
-		printable_num_random_monster--;
-	}else if(n == 'H'){
-		for(int i = 0; i < printable_num_fixed_HP_box;++i){
-			if(HP_box[i].x == x && HP_box[i].y == y){
-				for(int j = i; j < printable_num_fixed_HP_box - 1; ++j){
-					HP_box[j].x = HP_box[j+1].x;
-					HP_box[j].y = HP_box[j+1].y;
-				}
-			}
-		}
-		printable_num_fixed_HP_box--;
-	}else if(n == 'A'){
-		for(int i = 0; i < printable_num_fixed_ATK_box; ++i){
-			if(ATK_box[i].x == x && ATK_box[i].y == y){
-				for(int j = i; j < printable_num_fixed_ATK_box - 1; ++j){
-					ATK_box[j].x = ATK_box[j+1].x;
-					ATK_box[j].y = ATK_box[j+1].y;
-				}
-			}
-		}
-		printable_num_fixed_ATK_box--;
-	}else if(n == 'D'){
-		for(int i = 0; i < printable_num_fixed_DEF_box; ++i){
-			if(DEF_box[i].x == x && DEF_box[i].y == y){
-				for(int j = i; j < printable_num_fixed_DEF_box - 1; ++j){
-					DEF_box[j].x = DEF_box[j+1].x;
-					DEF_box[j].y = DEF_box[j+1].y;
-				}
-			}
-		}
-		printable_num_fixed_DEF_box--;
-	}else if(n == '!'){
-		for(int i = 0; i < printable_num_fixed_surprising_box; ++i){
-			if(surprising_box[i].x == x && surprising_box[i].y == y){
-				for(int j = i; j < printable_num_fixed_surprising_box - 1; ++j){
-					surprising_box[j].x = surprising_box[j+1].x;
-					surprising_box[j].y = surprising_box[j+1].y;
-				}
-			}
-		}
-		printable_num_fixed_surprising_box--;
-	}else if(n == '^'){
-		for(int i = 0; i < printable_num_fixed_key; ++i){
-			if(key[i].x == x && key[i].y == y){
-				for(int j = i; j < printable_num_fixed_key - 1; ++j){
-					key[j].x = key[j+1].x;
-					key[j].y = key[j+1].y;
-				}
-			}
-		}
-		printable_num_fixed_key--;
-	}
 }
 
 void upgrade(int* role_attribute){
@@ -227,23 +261,123 @@ void upgrade(int* role_attribute){
 void print_prumpt(char n, int * role_attribute){
 	if (n == 'H'){
 		move(12,0);
-		printw("HP +200!");
+		cout << "HP +200!";
 	}else if(n == 'A'){
 		move(12,0);
-		printw("ATK +5!");
+		cout << "ATK +5!";
 	}else if(n == 'D'){
 		move(12,0);
-		printw("DEF +5!");
+		cout << "DEF +5!";
 	}else if(n == '!'){
 		move(12,0);
 		if(y == 10){
-			printw("This is a diamond.\n");
+			cout << "This is a diamond.";
 			role_attribute[8]++;
 		}else{
-			printw("You've got a sword! ATK +10!");
+			cout << "You've got a sword! ATK +10!";
 			role_attribute[3] = role_attribute[3]+10;
 		}
 	}
+}
+
+void ask_questions(int * role_attribute,int x, int y){
+	int type;
+	for (int k = 0; k < num_fixed_monster; ++k){
+		if(monster[k].x == x && monster[k].y == y){
+			type = monster[k].type;
+		}
+	}
+	cout <<"I have very hard programming questions. \nCome on litter boy!" << endl;
+	if(type == 0){
+		char ans_2 = 'a';
+		char ans;
+		while(ans_2 == 'a'){
+			cout << "True or False: % can be applied to double. ('t'/'f')\n";
+			ans = getch();
+			if (ans == 'f'){
+				cout << "Great job!\n";
+				deleteEntry(monster,num_fixed_monster,x,y);
+				role_attribute[1]= role_attribute[1]+5;
+				role_attribute[2]= role_attribute[2]+5;
+				role_attribute[3]= role_attribute[3]+5;
+				role_attribute[4]= role_attribute[4]+5;
+				role_attribute[5]= role_attribute[5]+5;
+				ans_2 = 'b';
+			}else if(ans == 't'){
+				cout << "No, think about it carefully.\n'a': answer it again or 'b': leave('a'/'b'):\n";
+				ans_2 = getch();
+			}else{
+				cout << "Please input again: ";
+			}
+		}
+	}else if(type == 1){
+		char ans_2 = 'a';
+		char ans;
+		while(ans_2 == 'a'){
+			cout << "True or False: .PHONY targets will be generated even if they are up to date. ('t'/'f')\n";
+			ans = getch();
+			if (ans == 't'){
+				cout << "Great job!\n";
+				deleteEntry(monster,num_fixed_monster,x,y);
+				role_attribute[1]= role_attribute[1]+5;
+				role_attribute[2]= role_attribute[2]+5;
+				role_attribute[3]= role_attribute[3]+5;
+				role_attribute[4]= role_attribute[4]+5;
+				role_attribute[5]= role_attribute[5]+5;
+				ans_2 = 'b';
+			}else if(ans == 'f'){
+				cout << "No, think about it carefully.\n'a': answer it again or 'b': leave('a'/'b'):\n";
+				ans_2 = getch();
+			}else{
+				cout << "Please input again: ";
+			}
+		}
+	}else if(type == 2){
+		char ans_2 = 'a';
+		char ans;
+		while(ans_2 == 'a'){
+			cout << "True or False: 7 + rand()%100 generate [7,107]. ('t'/'f')\n";
+			ans = getch();
+			if (ans == 'f'){
+				cout << "Great job!\n";
+				deleteEntry(monster,num_fixed_monster,x,y);
+				role_attribute[1]= role_attribute[1]+5;
+				role_attribute[2]= role_attribute[2]+5;
+				role_attribute[3]= role_attribute[3]+5;
+				role_attribute[4]= role_attribute[4]+5;
+				role_attribute[5]= role_attribute[5]+5;
+				ans_2 = 'b';
+			}else if(ans == 't'){
+				cout << "No, think about it carefully.\n'a': answer it again or 'b': leave('a'/'b'):\n";
+				ans_2 = getch();
+			}else{
+				cout << "Please input again: ";
+			}
+		}
+	}else if(type == 3){
+		char ans_2 = 'a';
+		char ans;
+		while(ans_2 == 'a'){
+			cout << "True or False: The arraySize of (char array = \"john\") is 4. ('t'/'f')\n";
+			ans = getch();
+			if (ans == 'f'){
+				cout << "Great job!\n";
+				deleteEntry(monster,num_fixed_monster,x,y);
+				role_attribute[1]= role_attribute[1]+5;
+				role_attribute[2]= role_attribute[2]+5;
+				role_attribute[3]= role_attribute[3]+5;
+				role_attribute[4]= role_attribute[4]+5;
+				role_attribute[5]= role_attribute[5]+5;
+				ans_2 = 'b';
+			}else if(ans == 't'){
+				cout << "No, think about it carefully.\n'a': answer it again or 'b': leave('a'/'b'):\n";
+				ans_2 = getch();
+			}else{
+				cout << "Please input again: ";
+			}
+		}
+	}
+	cout << "Press 'p' to continue...\n";
 }
 
 
@@ -271,227 +405,247 @@ void update_attribute(int hp_value, int atk_value, int def_value,
 		upgrade(role_attribute);
 	}
 }
+
+Fixed_sth_coordinate * addEntry(Fixed_sth_coordinate * array, int & size, int x, int y){
+	Fixed_sth_coordinate * new_array = new Fixed_sth_coordinate[size+1];
+	for(int i = 0; i < size; ++i){
+		new_array[i].x = array[i].x;
+		new_array[i].y = array[i].y;
+	}
+	new_array[size].x = x;
+	new_array[size].y = y;
+	delete [] array;
+	size++;
+	return new_array;
+}
+
+void deleteEntry(Fixed_sth_coordinate * &array, int & size, int x, int y){
+	Fixed_sth_coordinate * new_array = new Fixed_sth_coordinate[size-1];
+	bool flag = false;
+	int idx = 0;
+	for(int i = 0; i < size; ++i){
+		if(array[i].x == x && array[i].y == y){
+			idx = i;
+			flag = true;
+		}
+	}
+	int count = 0;
+	for(int i = 0; i < size; ++i){
+		if(i != idx){
+			new_array[count] = array[i];
+			count++;
+		}
+	}
+	size--;
+	delete [] array;
+	array = new_array;
+}
+
 //setup all positions in this floor
 void Setup(){
 	GameOver =  false;
 	dir = STOP;
 	x = 2;
 	y = 1;
-	small_monster_1x = 1;
-	small_monster_1y = 1+rand()%(height-1);
-	small_monster_2x = 3+rand()% (width-4);
-	small_monster_2y = 6;
-	small_monster_3x = 2;
-	small_monster_3y = 2+rand()%(height-1);
-	small_monster_4x = 8+rand()%2;
-	small_monster_4y = 1+rand()%5;
 
 	//store fixed monsters into array
 	//store them into struct
-	int monster_x[num_fixed_monster] = {5,5,6,width-2,5,5,6,width-2,width-3, 13,13};
-	int monster_y[num_fixed_monster] = {1,2,2,3, height, height-1, height-1, height-2, height-2, 3, 4};
-	int monster_hp[num_fixed_monster] = {100, 100, 100, 100, 100, 100,100,100,100, 100,100};
-	int monster_atk[num_fixed_monster] = {20, 20, 20, 20, 20, 20, 20, 20, 20,20,20};
-	int monster_def[num_fixed_monster] = {10, 10, 10, 10, 10, 10, 10, 10, 10,10,10};
+	num_fixed_monster = 0;
+	monster = addEntry(monster, num_fixed_monster,6,2);
+	monster = addEntry(monster, num_fixed_monster,18,3);
+	monster = addEntry(monster, num_fixed_monster,18,8);
+	monster = addEntry(monster, num_fixed_monster,6,9);
 	for(int i = 0; i < num_fixed_monster; i++){
-		monster[i].x = monster_x[i];
-		monster[i].y = monster_y[i];
-		monster[i].HP = monster_hp[i];
-		monster[i].ATK = monster_atk[i];
-		monster[i].DEF = monster_def[i];
+		monster[i].type = i;
 	}
 
 	//store fixed doors and special door into array
 	//store them into struct
 	special_door[0].x = 11;
 	special_door[0].y = 9;
-	int door_x[num_fixed_door] = {7,7,width-2,width-2};
-	int door_y[num_fixed_door] = {1, height, height-3,2};
-	char door_type[num_fixed_door] = {'@', '@', '@', '@'};
-	for(int i = 0; i < num_fixed_door; i++){
-		door[i].x = door_x[i];
-		door[i].y = door_y[i];
-		door[i].type = door_type[i];
-	}
+	num_fixed_door = 0;
+	door = addEntry(door, num_fixed_door, 7,1);
+	door = addEntry(door, num_fixed_door, 7,10);
+	door = addEntry(door, num_fixed_door, 18,7);
+	door = addEntry(door, num_fixed_door, 18,2);
 
-	//store random monsters into array
-	//store them into struct
-	int r_monster_x[num_random_monster] = {small_monster_1x, small_monster_2x, small_monster_3x, small_monster_4x};
-	int r_monster_y[num_random_monster] = {small_monster_1y, small_monster_2y, small_monster_3y, small_monster_4y};
-	int r_monster_hp[num_random_monster] = {50, 50, 50, 50};
-	int r_monster_atk[num_random_monster] = {15,15,15,15};
-	int r_monster_def[num_random_monster] = {5, 5, 5, 5};
+
+	num_random_monster = 0;
+	random_monster = addEntry(random_monster, num_random_monster, 1, 1+rand()%6);
+	random_monster = addEntry(random_monster, num_random_monster, 3+rand()% 16, 6);
+	random_monster = addEntry(random_monster, num_random_monster, 2, 3+rand()%5);
+	random_monster = addEntry(random_monster, num_random_monster, 8+rand()%2,1+rand()%5);
 	for(int i = 0; i < num_random_monster; i++){
-		random_monster[i].x = r_monster_x[i];
-		random_monster[i].y = r_monster_y[i];
-		random_monster[i].HP = r_monster_hp[i];
-		random_monster[i].ATK = r_monster_atk[i];
-		random_monster[i].DEF = r_monster_def[i];
+		random_monster[i].HP = 50;
+		random_monster[i].ATK = 15;
+		random_monster[i].DEF = 5;
 	}
 
 	//store fixed surprising_box into array
 	//store them into struct
-	int box_x[num_fixed_surprising_box] = {18,11};
-	int box_y[num_fixed_surprising_box] = {10,3};
-	for(int i = 0; i < num_fixed_surprising_box; i++){
-		surprising_box[i].x = box_x[i];
-		surprising_box[i].y = box_y[i];
-	}
+	num_fixed_surprising_box = 0;
+	surprising_box = addEntry(surprising_box,num_fixed_surprising_box, 18,10);
+	surprising_box = addEntry(surprising_box,num_fixed_surprising_box, 11, 3);
 
 	//store fixed HP_box into array
-	int HP_box_x[num_fixed_HP_box] = {4,5,5,6,12,14};
-	int HP_box_y[num_fixed_HP_box] = {4,4,8,8,height,height};
-	for(int i = 0; i < num_fixed_HP_box; i++){
-		HP_box[i].x = HP_box_x[i];
-		HP_box[i].y = HP_box_y[i];
-	}
+	num_fixed_HP_box = 0;
+	HP_box = addEntry(HP_box, num_fixed_HP_box, 4,4);
+	HP_box = addEntry(HP_box, num_fixed_HP_box, 5,4);
+	HP_box = addEntry(HP_box, num_fixed_HP_box, 5,8);
+	HP_box = addEntry(HP_box, num_fixed_HP_box, 6,8);
+	HP_box = addEntry(HP_box, num_fixed_HP_box, 12,10);
+	HP_box = addEntry(HP_box, num_fixed_HP_box, 14,10);
 
 	//store fixed ATK_box into array
 	//store them into struct
-	int ATK_box_x[num_fixed_HP_box] = {4,15,17};
-	int ATK_box_y[num_fixed_HP_box] = {1,10,10};
-	for(int i = 0; i < num_fixed_ATK_box; i++){
-		ATK_box[i].x = ATK_box_x[i];
-		ATK_box[i].y = ATK_box_y[i];
-	}
+	num_fixed_ATK_box = 0;
+	ATK_box = addEntry(ATK_box, num_fixed_ATK_box, 4,1);
+	ATK_box = addEntry(ATK_box, num_fixed_ATK_box, 15,10);
+	ATK_box = addEntry(ATK_box, num_fixed_ATK_box, 17,10);
 	//store fixed DEF_box into array
 	//store them into struct
-	int DEF_box_x[num_fixed_DEF_box] = {11,12,13,16};
-	int DEF_box_y[num_fixed_DEF_box] = {4,4,10,10};
-	for(int i = 0; i < num_fixed_DEF_box; i++){
-		DEF_box[i].x = DEF_box_x[i];
-		DEF_box[i].y = DEF_box_y[i];
-	}
+	num_fixed_DEF_box = 0;
+	DEF_box = addEntry(DEF_box, num_fixed_DEF_box, 11,4);
+	DEF_box = addEntry(DEF_box, num_fixed_DEF_box, 12,4);
+	DEF_box = addEntry(DEF_box, num_fixed_DEF_box, 13,10);
+	DEF_box = addEntry(DEF_box, num_fixed_DEF_box, 16,10);
+
 
 	//store fixed keys into array
 	//store them into struct
-	int key_x[num_fixed_key] = {6,14,4,4};
-	int key_y[num_fixed_key] = {4,4,8,10};
-	for(int i = 0; i < num_fixed_key; i++){
-		key[i].x = key_x[i];
-		key[i].y = key_y[i];
-	}
+	num_fixed_key = 0;
+	key = addEntry(key, num_fixed_key, 6,4);
+	key = addEntry(key, num_fixed_key, 14,4);
+	key = addEntry(key, num_fixed_key, 4,8);
+	key = addEntry(key, num_fixed_key, 4,10);
 
 }
 
 //print the map
 void Draw(int* role_attribute){
 	clear();
+	move(0,0);
 	//print Floor 2 map walls
 	for(int i = 0; i < width; ++i){
 		if(i != 2){
-			printw("#");
+			wall[0][i] = true;
+			cout << "#";
 		}else{
-			printw(" ");
-		}}
-	printw("\n");
+			cout << " ";
+		}
+	}
+	cout << "\n";
 
-	for(int i = 0; i < height; ++i){
+	for(int i = 1; i <= height; ++i){
 		for (int j = 0; j < width; ++j){
-			if(j == 0 || (j == 3 && i != height / 2 )
-			|| (i == 4  && j != 1 && j != 2 && j != 8 && j != 9 && j != width - 1)
-			|| (i == 6  && j != 1 && j != 2 && j != 8 && j != 9 && j != width - 1 && j!= width - 2)
-			|| (j == 7 && i != 0 && i != 4 && i != 5 && i != 6 && i != height - 1)
-			|| (j == 10 && i != 0 && i != 4 && i != 5 && i != 6 )
-			|| (i == 1 && j == 11) || (i == 1  && j == 12) || (i == 1 && j == 13)
-			|| (i == 1 && j == 14) || (i == 1 && j == 15) || (i == 1 && j == 16) || (i == 1 && j == 17)
-			|| (i == height - 2 && j == 18) || (i == height - 2  && j == 12) || (i == height - 2 && j == 13)
-			|| (i == height - 2 && j == 14) || (i == height - 2 && j == 15) || (i == height - 2 && j == 16) || (i == height - 2 && j == 17)
+			if(j == 0 || (j == 3 && i != height / 2 +1 )
+			|| (i == 5  && j != 1 && j != 2 && j != 8 && j != 9 && j != width - 1)
+			|| (i == 7  && j != 1 && j != 2 && j != 8 && j != 9 && j != width - 1 && j!= width - 2)
+			|| (j == 7 && i != 1 && i != 5 && i != 6 && i != 7 && i != height)
+			|| (j == 10 && i != 1 && i != 5 && i != 6 && i != 7 )
+			|| (i == 2 && j == 11) || (i == 2  && j == 12) || (i == 2 && j == 13)
+			|| (i == 2 && j == 14) || (i == 2 && j == 15) || (i == 2 && j == 16) || (i == 2 && j == 17)
+			|| (i == height - 1 && j == 18) || (i == height - 1  && j == 12) || (i == height - 1 && j == 13)
+			|| (i == height - 1 && j == 14) || (i == height - 1 && j == 15) || (i == height - 1 && j == 16) || (i == height - 1 && j == 17)
 					){
-				printw("#");
+				wall[i][j]=true;
+				cout << "#";
 			}else if(j == width - 1){
-				printw("#\n");
+				wall[i][j] = true;
+				cout << "#\n";
 			}else{
-				printw(" ");
+				cout << " ";
 			}
 		}
 	}
 
 	for(int i = 0; i < width; ++i){
 		if (i != 2){
-			printw("#");
+			wall[11][i] = true;
+			cout << "#";
 		}else{
-			printw(" ");
+			cout << " ";
 		}
 	}
 
 	//print existing fixed monsters
-	for(int k = 0; k < printable_num_fixed_monster; ++k){
+	for(int k = 0; k < num_fixed_monster; ++k){
 		move(monster[k].y, monster[k].x);
-		printw("M");
+		cout << "M";
 	}
 	//print existing doors
-	for(int k = 0; k < printable_num_fixed_door; ++k){
+	for(int k = 0; k < num_fixed_door; ++k){
 		move(door[k].y, door[k].x);
-		printw("%c", door[k].type);
+		cout << "@";
 	}
 
 	//print exsiting random monsters
-	for(int k = 0; k < printable_num_random_monster; ++k){
+	for(int k = 0; k < num_random_monster; ++k){
 		move(random_monster[k].y, random_monster[k].x);
-		printw("0");
+		cout << "m";
 	}
 	//print existing HP_box
-	for(int k = 0; k < printable_num_fixed_HP_box; ++k){
+	for(int k = 0; k < num_fixed_HP_box; ++k){
 		move(HP_box[k].y, HP_box[k].x);
-		printw("H");
+		cout << "H";
 	}
 
 	//print existing ATK_box
-	for(int k = 0; k < printable_num_fixed_ATK_box; ++k){
+	for(int k = 0; k < num_fixed_ATK_box; ++k){
 		move(ATK_box[k].y, ATK_box[k].x);
-		printw("A");
+		cout << "A";
 	}
 
 	//print existing DEF_box
-	for(int k = 0; k < printable_num_fixed_DEF_box; ++k){
+	for(int k = 0; k < num_fixed_DEF_box; ++k){
 		move(DEF_box[k].y, DEF_box[k].x);
-		printw("D");
+		cout << "D";
 	}
 
 	//print existing surprising_box
-	for(int k = 0; k < printable_num_fixed_surprising_box; ++k){
+	for(int k = 0; k < num_fixed_surprising_box; ++k){
 		move(surprising_box[k].y, surprising_box[k].x);
-		printw("!");
+		cout << "!";
 	}
 
 	//print existing keys
-	for(int k = 0; k < printable_num_fixed_key; ++k){
+	for(int k = 0; k < num_fixed_key; ++k){
 		move(key[k].y, key[k].x);
-		printw("^");
+		cout << "^";
 	}
 
 	//print role position
 	move(y,x);
-	printw("c");
+	cout << "c";
 	if(open_special_door == false){
 		move(special_door[0].y, special_door[0].x);
-		printw("$");
+		cout << "$";
 	}
 	//print role_attribute
 	move(0,25);
-	printw("Floor: %d", Floor);
+	cout << "Floor: "<<Floor_l2;
 	move(2,25);
-	printw("Level: %d", role_attribute[0]);
+	cout << "Level: "<< role_attribute[0];
 	move(3,25);
-	printw("EXP: %d", role_attribute[1]);
+	cout << "EXP: "<< role_attribute[1];
 	move(4,25);
-	printw("HP: %d", role_attribute[2]);
+	cout << "HP: "<< role_attribute[2];
 	move(5,25);
-	printw("ATK: %d",role_attribute[3]);
+	cout << "ATK: "<<role_attribute[3];
 	move(6,25);
-	printw("DEF: %d",role_attribute[4]);
+	cout << "DEF: "<< role_attribute[4];
 	move(8,25);
-	printw("GOLD: %d",role_attribute[5]);
+	cout << "GOLD: "<<role_attribute[5];
 	move(9,25);
-	printw("KEY(door): ^(@) %d",role_attribute[6]);
+	cout << "KEY(door): ^(@) " << role_attribute[6];
 	move(10,25);
-	printw("           ?($) %d",role_attribute[7]);
+	cout << "           ?($) " << role_attribute[7];
 	move(12,0);
+
 }
 
 //use getch() to read user input prumptly
-void input(int* role_attribute, char* user_name){
+void input(int* role_attribute, string user_name){
 	//when collecting H, A, D, !, prumpt information of that
 	if(IsH == true){
 		print_prumpt('H', role_attribute);
@@ -505,6 +659,14 @@ void input(int* role_attribute, char* user_name){
 	}else if(Is_Sur == true){
 		print_prumpt('!', role_attribute);
 		Is_Sur = false;
+	}else if(IsM == true){
+		ask_questions(role_attribute,m_x_l2,m_y_l2);
+		IsM = false;
+		char ch;
+		dir = STOP;
+		if(getch() == 'p'){
+			return;
+		}
 	}else if(save == true){
 		saving_status(user_name);
 	}else if(Is_Info == true){
@@ -513,26 +675,27 @@ void input(int* role_attribute, char* user_name){
 	}
 	//user input
 	switch(getch()){
-		case KEY_UP:
+		case 'w':
 			dir = UP;
 			break;
-		case KEY_DOWN:
+		case 's':
 			dir = DOWN;
 			break;
-		case KEY_LEFT:
+		case 'a':
 			dir = LEFT;
 			break;
-		case KEY_RIGHT:
+		case 'd':
 			dir = RIGHT;
 			break;
-		case 27:
+		case 'q':
 			GameOver = true;
 			break;
-		case 's':
+		case '0':
 			save = true;
 			break;
 		case 'i':
 			Is_Info = true;
+			dir = STOP;
 			break;
 		default:
 		//it is like a loop
@@ -543,71 +706,65 @@ void input(int* role_attribute, char* user_name){
 //function: check what is the char in the cell that the role is moving to
 //different reaction regarding different cases
 //we need to delete things except the wall(we should not print them in the next loop)
-void logic_function_1(int x, int y, int &change, int b, bool is_down,bool is_up, int* role_attribute, char* user_name){
+void logic_function_1(int x, int y, int &change, int b, bool is_down,bool is_up, int* role_attribute, string user_name){
 	//if the cell is wall, then not move
-	if(mvinch(y, x) == '#'){
-		x = x;
+	if(mvinch(x,y) == '#'){
+
 	//if the cell is the door to floor_1, then go to floor_1
 	}else if(y == 0 && is_up == true){
 		//floor_1();
 
 	//if the cell is the door to floor_2, then go to floor_2
 	}else if(y == height+1 && is_down == true){
-		floor_3_main(role_attribute,user_name);
+		floor_3_main(role_attribute, user_name);
 
 	//it is a door
-	}else if(mvinch(y, x) == '@'){
+}else if(mvinch(x,y) == '@'){
 		if (role_attribute[6] != 0){
-			delete_sth(x,y,'@');
+			deleteEntry(door, num_fixed_door,x,y);
 			role_attribute[6]--;
 		}
 	//it is a special door
-	}else if(mvinch(y, x) == '$'){
+}else if(mvinch(x,y) == '$'){
 		if (role_attribute[7] != 0){
 			open_special_door = true;
 			role_attribute[7]--;
 		}
 	//it is a key
-	}else if(mvinch(y, x) == '^'){
+	}else if(mvinch(x,y) == '^'){
 		role_attribute[6]++;
-		delete_sth(x,y,'^');
+		deleteEntry(key,num_fixed_key,x,y);
 	//it is a HP_box, it will increase HP by 200
-	}else if(mvinch(y, x) == 'H'){
-		delete_sth(x,y,'H');
+	}else if(mvinch(x,y) == 'H'){
+		deleteEntry(HP_box,num_fixed_HP_box,x,y);
 		IsH = true;
 		role_attribute[2] = role_attribute[2] + 200;
 	//it is a STK_box, it will increase ATK by 5
-	}else if(mvinch(y, x) == 'A'){
-		delete_sth(x,y,'A');
+	}else if(mvinch(x,y) == 'A'){
+		deleteEntry(ATK_box,num_fixed_ATK_box,x,y);
 		IsA = true;
 		role_attribute[3] = role_attribute[3] + 5;
 	//it is a DEF_box, it will increase DEF by 5
-	}else if(mvinch(y, x) == 'D'){
-		delete_sth(x,y,'D');
+	}else if(mvinch(x,y) == 'D'){
+		deleteEntry(DEF_box,num_fixed_DEF_box,x,y);
 		IsD = true;
 		role_attribute[4] = role_attribute[4] + 5;
 	//it is a surprising_box, it will have sword or diamond
-	}else if(mvinch(y, x) == '!'){
-		delete_sth(x,y,'!');
+	}else if(mvinch(x,y) == '!'){
+		deleteEntry(surprising_box,num_fixed_surprising_box,x,y);
 		Is_Sur = true;
-	//it is a fixed position monster
-	//calculate the hp_needed_beat_M, if we can kill it, then we can attack it
-	//otherwise, we stay
-	}else if(mvinch(y, x) == 'M'){
-		int hp_M = hp_needed_beat_M(role_attribute[3], role_attribute[4]);
-		if (hp_M >= 0 && hp_M < role_attribute[2]){
-			update_attribute(100,20,10,9,10, role_attribute);
-			delete_sth(x,y,'M');
-		}else{
-			x = x;
-		}
+	//it is a fixed position monster, with questions
+	}else if(mvinch(x,y) == 'M'){
+		IsM = true;
+		m_x_l2 = x;
+		m_y_l2 = y;
 	//it is a random_generated_monster, if we can kill it, then we can attack it
 	//otherwise, we stay
-	}else if(mvinch(y, x) == '0'){
-		int hp_0 = hp_needed_beat_0(role_attribute[3], role_attribute[4]);
-		if (hp_0 >= 0 && hp_0 < role_attribute[2]){
+	}else if(mvinch(x,y) == 'm'){
+		int hp_m = hp_needed_beat_m(role_attribute[3], role_attribute[4]);
+		if (hp_m >= 0 && hp_m < role_attribute[2]){
 			update_attribute(50,15,5,3,5,role_attribute);
-			delete_sth(x,y,'0');
+			deleteEntry(random_monster, num_random_monster,x,y);
 		}else{
 			x = x;
 		}
@@ -617,7 +774,7 @@ void logic_function_1(int x, int y, int &change, int b, bool is_down,bool is_up,
 }
 
 //move up and down to generate different reactions
-void logic(int* role_attribute, char* user_name){
+void logic(int* role_attribute, string user_name){
 	switch (dir) {
 		case UP:
 		logic_function_1(x,y-1,y,-1,false, true, role_attribute, user_name);
@@ -634,36 +791,4 @@ void logic(int* role_attribute, char* user_name){
 		default:
 			break;
 	}
-}
-
-/*this is used to test the game compliation between level 2 and level 3
-int main(){
-	int role_level = 2, role_HP = 1000, role_ATK = 10, role_DEF = 10, role_EXP = 20, role_GOLD = 50, num_role_key = 10, num_role_key_2 = 0, diamond = 0;
-	char user_name[10] = "carrie";
-	int role_attribute[9] = {role_level, role_EXP, role_HP,
-		role_ATK, role_DEF, role_GOLD, num_role_key, num_role_key_2, diamond};
-	floor_2_main(role_attribute, user_name);
-	return 0;
-}*/
-
-//floor_2_main function
-int floor_2_main(int *role_attribute, char* user_name){
-	srand (time(NULL));
-
-	initscr();
-	cbreak();
-	noecho();
-	keypad(stdscr, TRUE);
-	//start a loop
-	if (count_setup == 0){
-		Setup();
-		count_setup++;
-	}
-	while(!GameOver){
-		Draw(role_attribute);
-		input(role_attribute, user_name);
-		logic(role_attribute, user_name);
-	}
-	endwin();
-	return 0;
 }
