@@ -19,25 +19,32 @@ int main(){
   // [9]: player's '@' key
   // [10]: player's '$' key
   // [11]: player's '%' key
-  /*fin.open("TofP_status.txt");
-  if (fin.is_open()){
-    for (int i=0;i<9;i++){
-      fin >> player_status[i];
-    }
-  }else{
-    cout << "error"<< endl;
-  }
-  fin.close();*/
-
-  // read data from 'TofP_status.txt'
+  bool GameOver = false;
   string user_name;
-  cout << "please input your name (<10 characters):";
+  cout << "Please input your name (<10 characters):";
   cin >> user_name;
-  if (player_status[0] == 1){floor_1_main(player_status,user_name);}
-  else if (player_status[0] == 2){floor_2_main(player_status,user_name);}
-  else if (player_status[0] == 3){floor_3_main(player_status,user_name);}
-  //else if (player_status[0] == 4){floor_4_main(player_status,user_name);};
-  // call functions of different levels
-
+  char ch;
+  cout << "a: Start a new game\nb: Continues where you left off? \n('a'/'b'): ";
+  cin >> ch;
+  if(ch == 'a'){
+    cout << "No records of this user name"<<endl;
+    floor_1_main(player_status,user_name, GameOver);
+  }else if (ch == 'b'){
+    string filename = user_name+".txt";
+    fin.open(filename.c_str());
+    if (fin.is_open()){
+      for (int i=0;i<9;i++){
+        fin >> player_status[i];
+      }
+      // call functions of different levels
+      if (player_status[0] == 1){floor_1_main(player_status,user_name, GameOver);}
+      else if (player_status[0] == 2){floor_2_main(player_status,user_name, GameOver);}
+      else if (player_status[0] == 3){floor_3_main(player_status,user_name, GameOver);}
+      else if (player_status[0] == 4){floor_4_main(player_status,user_name);};
+      fin.close();
+    }else{
+      floor_1_main(player_status,user_name, GameOver);
+    }
+  }
   return 0;
 }
