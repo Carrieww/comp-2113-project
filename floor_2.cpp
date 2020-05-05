@@ -1,5 +1,6 @@
 //Floor 2
 #include <iostream>
+#include <fstream>
 #include <ctime>
 #include <unistd.h>
 #include <termios.h>
@@ -48,7 +49,7 @@ Fixed_sth_coordinate * surprising_box = new Fixed_sth_coordinate[num_fixed_surpr
 int x, y;
 int count_setup_l2 = 0, Floor_l2 = 2;
 
-bool wall[12][22],GameOver, save, IsM, IsH, IsA, IsD, Is_Sur, Is_Info, open_special_door = false;
+bool wall[12][22],save, IsM, IsH, IsA, IsD, Is_Sur, Is_Info, open_special_door = false;
 enum eDirection{STOP = 0, LEFT, RIGHT, UP, DOWN};
 eDirection dir;
 
@@ -91,33 +92,34 @@ void Draw(int *role_attribute);
 //check what is the char in the cell that the role is moving to
 //different reaction regarding different cases
 //we need to delete things except the wall(we should not print them in the next loop)
-void logic_function_1(int x, int y, int &change, int b, bool is_down,bool is_up, int *role_attribute, string user_name);
+void logic_function_1(int x, int y, int &change, int b, bool is_down,bool is_up, int *role_attribute, string user_name, bool &GameOver);
 //print notifications or interact with users (if any), then get user input
-void input(int * role_attribute, string user_name);
+void input(int * role_attribute, string user_name, bool &GameOver);
 //move up and down to generate different reactions
-void logic(int* role_attribute, string user_name);
+void logic(int* role_attribute, string user_name, bool &GameOver);
 
 
 
 //floor_2_main function
-void floor_2_main(int *role_attribute, string user_name){
+void floor_2_main(int *role_attribute, string user_name, bool &GameOver){
 	srand (time(NULL));
-
-	for (int i=0;i<=11;i++){
-    for (int j=0;j<=21;j++ ){
-      wall[i][j] = false;
-    }
-  }
-
-	//start a loop
-	if (count_setup_l2 == 0){
-		Setup();
-		count_setup_l2++;
-	}
-	while(!GameOver){
-		Draw(role_attribute);
-		input(role_attribute, user_name);
-		logic(role_attribute, user_name);
+	if (GameOver == false){
+		//initialize the wall map
+		for (int i=0;i<=11;i++){
+	    for (int j=0;j<=21;j++ ){
+	      wall[i][j] = false;
+	    }
+	  }
+		if (count_setup_l2 == 0){
+			Setup();
+			count_setup_l2++;
+		}
+		//start a loop
+		while(GameOver == false){
+			Draw(role_attribute);
+			input(role_attribute, user_name, GameOver);
+			logic(role_attribute, user_name, GameOver);
+		}
 	}
 }
 
@@ -224,11 +226,17 @@ int hp_needed_beat_m(int role_ATK, int role_DEF){
 }
 
 //function: click 's', save status into .txt file in gamestatus folder
-void saving_status(string user_name){
+void saving_status(int * role_attribute,string user_name){
 	move(12,0);
-	string filename = "game_status/" + user_name + "_floor_2.txt";
+	string filename = user_name + ".txt";
+	ofstream fout;
+	fout.open(filename.c_str());
+	for(int i = 0; i < 8; i++){
+		fout << role_attribute[i]<<" ";
+	}
+	fout << role_attribute[8]<< endl;
+	fout.close();
 	cout << "game status already saved!\ngame over...";
-	GameOver = true;
 }
 
 // when click 'i' for more info of rivals in Floor 2
@@ -443,7 +451,6 @@ void deleteEntry(Fixed_sth_coordinate * &array, int & size, int x, int y){
 
 //setup all positions in this floor
 void Setup(){
-	GameOver =  false;
 	dir = STOP;
 	x = 2;
 	y = 1;
@@ -645,7 +652,7 @@ void Draw(int* role_attribute){
 }
 
 //use getch() to read user input prumptly
-void input(int* role_attribute, string user_name){
+void input(int* role_attribute, string user_name, bool &GameOver){
 	//when collecting H, A, D, !, prumpt information of that
 	if(IsH == true){
 		print_prumpt('H', role_attribute);
@@ -668,7 +675,7 @@ void input(int* role_attribute, string user_name){
 			return;
 		}
 	}else if(save == true){
-		saving_status(user_name);
+		saving_status(role_attribute,user_name);
 	}else if(Is_Info == true){
 		show_info(role_attribute);
 		Is_Info = false;
@@ -689,6 +696,7 @@ void input(int* role_attribute, string user_name){
 			break;
 		case 'q':
 			GameOver = true;
+			dir = STOP;
 			break;
 		case '0':
 			save = true;
@@ -699,24 +707,23 @@ void input(int* role_attribute, string user_name){
 			break;
 		default:
 		//it is like a loop
-			input(role_attribute, user_name);
+			input(role_attribute, user_name, GameOver);
 			break;
 	}
 }
 //function: check what is the char in the cell that the role is moving to
 //different reaction regarding different cases
 //we need to delete things except the wall(we should not print them in the next loop)
-void logic_function_1(int x, int y, int &change, int b, bool is_down,bool is_up, int* role_attribute, string user_name){
+void logic_function_1(int x, int y, int &change, int b, bool is_down,bool is_up, int* role_attribute, string user_name, bool &GameOver){
 	//if the cell is wall, then not move
 	if(mvinch(x,y) == '#'){
-		floor_1_main(role_attribute, user_name);
 	//if the cell is the door to floor_1, then go to floor_1
 	}else if(y == 0 && is_up == true){
-		//floor_1();
+		floor_1_main(role_attribute, user_name,GameOver);
 
 	//if the cell is the door to floor_2, then go to floor_2
 	}else if(y == height+1 && is_down == true){
-		floor_3_main(role_attribute, user_name);
+		floor_3_main(role_attribute, user_name, GameOver);
 
 	//it is a door
 }else if(mvinch(x,y) == '@'){
@@ -774,19 +781,19 @@ void logic_function_1(int x, int y, int &change, int b, bool is_down,bool is_up,
 }
 
 //move up and down to generate different reactions
-void logic(int* role_attribute, string user_name){
+void logic(int* role_attribute, string user_name, bool &GameOver){
 	switch (dir) {
 		case UP:
-		logic_function_1(x,y-1,y,-1,false, true, role_attribute, user_name);
+		logic_function_1(x,y-1,y,-1,false, true, role_attribute, user_name, GameOver);
 			break;
 		case DOWN:
-		logic_function_1(x,y+1,y,1,true, false, role_attribute, user_name);
+		logic_function_1(x,y+1,y,1,true, false, role_attribute, user_name, GameOver);
 			break;
 		case LEFT:
-			logic_function_1(x-1,y,x,-1, false, false, role_attribute, user_name);
+			logic_function_1(x-1,y,x,-1, false, false, role_attribute, user_name, GameOver);
 			break;
 		case RIGHT:
-			logic_function_1(x+1,y,x,1, false, false, role_attribute, user_name);
+			logic_function_1(x+1,y,x,1, false, false, role_attribute, user_name, GameOver);
 			break;
 		default:
 			break;
