@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <termios.h>
 #include <string>
-#include "level.h"
+#include "floor.h"
 using namespace std;
 
 /* symbol used on floor 3
@@ -642,7 +642,7 @@ void logic_function_1_l3(int x, int y, int &change, int b, bool is_down,bool is_
 		x = x;
 	//if the cell is the door to floor_4, then go to floor_4
 	}else if(y == 0 && x == 2 && is_up == true){
-		//floor_4();
+		floor_4_main(role_attribute,user_name);
 
 	//if the cell is the door to floor_2, then go to floor_2
 	}else if(y == height_l3+1 && x == 10 && is_down == true){
