@@ -1,5 +1,6 @@
 //Floor 1
 #include <iostream>
+#include <string>
 #include <time.h>
 #include "floor.h"
 #include <stdio.h>
@@ -54,13 +55,13 @@ bool wall_l1[12][22];
 enum eDirection{STOP = 0, LEFT, RIGHT, UP, DOWN};
 eDirection dir_l1;
 
-void move(int x,int y){
+void move_l1(int x,int y){
   printf("\033[%d;%dH", (x+1), (y+1));
 }
-void clear(){
+void clear_l1(){
   printf("\033[2J");
 }
-int getch(void)
+int getch_l1(void)
 {
     struct termios oldattr, newattr;
     int ch;
@@ -72,7 +73,7 @@ int getch(void)
     tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
     return ch;
 }
-char mvinch(int x, int y){
+char mvinch_l1(int x, int y){
   if (wall_l1[x][y] == true){
     return ('#');
   }
@@ -280,194 +281,194 @@ void update_attribute_l1(int hp_value, int atk_value, int def_value,
 	}
 }
 bool mtest(){
-  move(12,0);
+  move_l1(12,0);
   int a = rand()%6;
   if (a == 0){
-    move(12,0);
+    move_l1(12,0);
     printf("We can name a directory lab 1 with the following command:");
-    move(13,0);
+    move_l1(13,0);
     printf("mkdir lab 1");
-    move(14,0);
+    move_l1(14,0);
     printf("T/F");
-    char c = getch();
+    char c = getch_l1();
     while (c != 't' && c != 'f'){
-      c = getch();
+      c = getch_l1();
     }
     if (c == 't'){
-      move(12,0);
+      move_l1(12,0);
       printf("\033[K");
-      move(13,0);
+      move_l1(13,0);
       printf("\033[K");
-      move(14,0);
+      move_l1(14,0);
       printf("\033[K");
-      move(12,0);
+      move_l1(12,0);
       printf("No....That seems wrong.");
       return false;
     }else{
-      move(12,0);
+      move_l1(12,0);
       printf("\033[K");
-      move(13,0);
+      move_l1(13,0);
       printf("\033[K");
-      move(14,0);
+      move_l1(14,0);
       printf("\033[K");
-      move(12,0);
+      move_l1(12,0);
       printf("It is weakened!");
       return true;
     }
   }
   if (a == 1){
-    move(12,0);
+    move_l1(12,0);
     printf("We can move a directory dir to dir2 using the following command:");
-    move(13,0);
+    move_l1(13,0);
     printf("mv dir dir2");
-    move(14,0);
+    move_l1(14,0);
     printf("T/F");
-    char c = getch();
+    char c = getch_l1();
     while (c != 't' && c != 'f'){
-      c = getch();
+      c = getch_l1();
     }
     if (c == 't'){
-      move(12,0);
+      move_l1(12,0);
       printf("\033[K");
-      move(13,0);
+      move_l1(13,0);
       printf("\033[K");
-      move(14,0);
+      move_l1(14,0);
       printf("\033[K");
-      move(12,0);
+      move_l1(12,0);
       printf("No....That seems wrong.");
       return false;
     }else{
-      move(12,0);
+      move_l1(12,0);
       printf("\033[K");
-      move(13,0);
+      move_l1(13,0);
       printf("\033[K");
-      move(14,0);
+      move_l1(14,0);
       printf("\033[K");
-      move(12,0);
+      move_l1(12,0);
       printf("It is weakened!");
       return true;
     }
   }
   if (a == 2){
-    move(12,0);
+    move_l1(12,0);
     printf("In the vi editor, ':w' will save the file:");
-    move(13,0);
+    move_l1(13,0);
     printf("T/F");
-    char c = getch();
+    char c = getch_l1();
     while (c != 't' && c != 'f'){
-      c = getch();
+      c = getch_l1();
     }
     if (c == 'f'){
-      move(12,0);
+      move_l1(12,0);
       printf("\033[K");
-      move(13,0);
+      move_l1(13,0);
       printf("\033[K");
-      move(14,0);
+      move_l1(14,0);
       printf("\033[K");
-      move(12,0);
+      move_l1(12,0);
       printf("No....That seems wrong.");
       return false;
     }else{
-      move(12,0);
+      move_l1(12,0);
       printf("\033[K");
-      move(13,0);
+      move_l1(13,0);
       printf("\033[K");
-      move(14,0);
+      move_l1(14,0);
       printf("\033[K");
-      move(12,0);
+      move_l1(12,0);
       printf("It is weakened!");
       return true;
     }
   }
   if (a == 3){
-    move(12,0);
+    move_l1(12,0);
     printf("chmod o+rx file means giving everyone the read and execute permission");
-    move(13,0);
+    move_l1(13,0);
     printf("T/F");
-    char c = getch();
+    char c = getch_l1();
     while (c != 't' && c != 'f'){
-      c = getch();
+      c = getch_l1();
     }
     if (c == 't'){
-      move(12,0);
+      move_l1(12,0);
       printf("\033[K");
-      move(13,0);
+      move_l1(13,0);
       printf("\033[K");
-      move(14,0);
+      move_l1(14,0);
       printf("\033[K");
-      move(12,0);
+      move_l1(12,0);
       printf("No....That seems wrong.");
       return false;
     }else{
-      move(12,0);
+      move_l1(12,0);
       printf("\033[K");
-      move(13,0);
+      move_l1(13,0);
       printf("\033[K");
-      move(14,0);
+      move_l1(14,0);
       printf("\033[K");
-      move(12,0);
+      move_l1(12,0);
       printf("It is weakened!");
       return true;
     }
   }
   if (a == 4){
-    move(12,0);
+    move_l1(12,0);
     printf("In the shell script, [$a -lt $b] is true if a>b:");
-    move(13,0);
+    move_l1(13,0);
     printf("T/F");
-    char c = getch();
+    char c = getch_l1();
     while (c != 't' && c != 'f'){
-      c = getch();
+      c = getch_l1();
     }
     if (c == 't'){
-      move(12,0);
+      move_l1(12,0);
       printf("\033[K");
-      move(13,0);
+      move_l1(13,0);
       printf("\033[K");
-      move(14,0);
+      move_l1(14,0);
       printf("\033[K");
-      move(12,0);
+      move_l1(12,0);
       printf("No....That seems wrong.");
       return false;
     }else{
-      move(12,0);
+      move_l1(12,0);
       printf("\033[K");
-      move(13,0);
+      move_l1(13,0);
       printf("\033[K");
-      move(14,0);
+      move_l1(14,0);
       printf("\033[K");
-      move(12,0);
+      move_l1(12,0);
       printf("It is weakened!");
       return true;
     }
   }
   if (a == 5){
-    move(12,0);
+    move_l1(12,0);
     printf("In shell script, '$#' means the number of command line variables given");
-    move(13,0);
+    move_l1(13,0);
     printf("T/F");
-    char c = getch();
+    char c = getch_l1();
     while (c != 't' && c != 'f'){
-      c = getch();
+      c = getch_l1();
     }
     if (c == 'f'){
-      move(12,0);
+      move_l1(12,0);
       printf("\033[K");
-      move(13,0);
+      move_l1(13,0);
       printf("\033[K");
-      move(14,0);
+      move_l1(14,0);
       printf("\033[K");
-      move(12,0);
+      move_l1(12,0);
       printf("No....That seems wrong.");
       return false;
     }else{
-      move(12,0);
+      move_l1(12,0);
       printf("\033[K");
-      move(13,0);
+      move_l1(13,0);
       printf("\033[K");
-      move(14,0);
+      move_l1(14,0);
       printf("\033[K");
-      move(12,0);
+      move_l1(12,0);
       printf("It is weakened!");
       return true;
     }
@@ -475,114 +476,114 @@ bool mtest(){
   return true;
 }
 // guide function to give 3 guidances at the beginning
-void guide(int x, int y, char *user_name){
+void guide(int x, int y, std::string user_name){
   if (x == 2 && y == 1){
-    move(12,0);
-    printf("Hi %s, Welcome to Tower of Programmer!",user_name);
+    move_l1(12,0);
+    std::cout << "Hi "<<user_name<<", Welcome to Tower of Programmer!"<< std::endl;
     printf(" (press p to continue)\n");
-    while (getch() != 'p'){
+    while (getch_l1() != 'p'){
     }
-    move(12,0);
+    move_l1(12,0);
     printf("\033[K");
-    move(13,0);
+    move_l1(13,0);
     printf("\033[K");
-    move(12,0);
+    move_l1(12,0);
     printf("This is the first floor of the tower. If you want to meet Dr.L, here's the place for you!");
     printf(" (press p to continue)\n");
-    while (getch() != 'p'){
+    while (getch_l1() != 'p'){
     }
-    move(12,0);
+    move_l1(12,0);
     printf("\033[K");
-    move(13,0);
+    move_l1(13,0);
     printf("\033[K");
-    move(12,0);
+    move_l1(12,0);
     printf("Dr.L is a great professor and all best programmers used to learn from him, but he only stays in this tower.");
     printf(" (press p to continue)\n");
-    while (getch() != 'p'){
+    while (getch_l1() != 'p'){
     }
-    move(12,0);
+    move_l1(12,0);
     printf("\033[K");
-    move(13,0);
+    move_l1(13,0);
     printf("\033[K");
-    move(12,0);
+    move_l1(12,0);
     printf("No one knows why there are so many monsters (m/M) here. You need to use your wisdom to defeat them.");
     printf(" (press p to continue)\n");
-    while (getch() != 'p'){
+    while (getch_l1() != 'p'){
     }
-    move(12,0);
+    move_l1(12,0);
     printf("\033[K");
-    move(13,0);
+    move_l1(13,0);
     printf("\033[K");
-    move(12,0);
+    move_l1(12,0);
     printf("The right-hand side is your attributes. Try to find 'H'/'A'/'D' to increase your power.");
     printf(" (press p to continue)\n");
-    while (getch() != 'p'){
+    while (getch_l1() != 'p'){
     }
-    move(12,0);
+    move_l1(12,0);
     printf("\033[K");
-    move(13,0);
+    move_l1(13,0);
     printf("\033[K");
-    move(12,0);
+    move_l1(12,0);
     printf("Also, you will gain experience and gold by defeating monsters. You can go to store(S) to buy your power.");
     printf(" (press p to continue)\n");
-    while (getch() != 'p'){
+    while (getch_l1() != 'p'){
     }
-    move(12,0);
+    move_l1(12,0);
     printf("\033[K");
-    move(13,0);
+    move_l1(13,0);
     printf("\033[K");
-    move(12,0);
+    move_l1(12,0);
     printf("Some doors (@/$) are locked. You need to use keys (^/?) to open them.");
     printf(" (press p to continue)\n");
-    while (getch() != 'p'){
+    while (getch_l1() != 'p'){
     }
-    move(12,0);
+    move_l1(12,0);
     printf("\033[K");
-    move(13,0);
+    move_l1(13,0);
     printf("\033[K");
-    move(12,0);
+    move_l1(12,0);
     printf("Go ahead, young man! Try to find Dr.L and hope you can learn programming in this journey.");
   }
   if (x==5 && y==1){
     printf("Congratulation! You just defeat the first monster.");
     printf(" (press p to continue)\n");
-    while (getch() != 'p'){
+    while (getch_l1() != 'p'){
     }
-    move(12,0);
+    move_l1(12,0);
     printf("\033[K");
-    move(13,0);
+    move_l1(13,0);
     printf("\033[K");
-    move(12,0);
+    move_l1(12,0);
     printf("You can see that your HP is decreasing and you can press 'i' later to check how much HP required to defeat a monster.");
   }
   if (x==9 && y==1){
     printf("Did you see that you are required to answer questions?");
     printf(" (press p to continue)\n");
-    while (getch() != 'p'){
+    while (getch_l1() != 'p'){
     }
-    move(12,0);
+    move_l1(12,0);
     printf("\033[K");
-    move(13,0);
+    move_l1(13,0);
     printf("\033[K");
-    move(12,0);
+    move_l1(12,0);
     printf("That's because some monsters are so close to Dr.L that they also learn some programming skills.");
     printf(" (press p to continue)\n");
-    while (getch() != 'p'){
+    while (getch_l1() != 'p'){
     }
-    move(12,0);
+    move_l1(12,0);
     printf("\033[K");
-    move(13,0);
+    move_l1(13,0);
     printf("\033[K");
-    move(12,0);
+    move_l1(12,0);
     printf("If you can answer questions correctly, monsters will be weakened.");
     printf(" (press p to continue)\n");
-    while (getch() != 'p'){
+    while (getch_l1() != 'p'){
     }
-    move(12,0);
+    move_l1(12,0);
     printf("\033[K");
-    move(13,0);
+    move_l1(13,0);
     printf("\033[K");
-    move(12,0);
+    move_l1(12,0);
     printf("Go ahead and try to find Dr.L!");
   }
 }
@@ -707,8 +708,8 @@ int hp_needed_beat_M_l1(int role_ATK, int role_DEF){
 
 //print the map
 void Draw_l1(int* role_attribute){
-	clear();
-  move(0,0);
+	clear_l1();
+  move_l1(0,0);
 	//print Floor 1 map wall_l1s
 	for(int i = 0; i <= 21; ++i){
 		if(i != 1 && i != 20){
@@ -751,92 +752,92 @@ void Draw_l1(int* role_attribute){
 
 	//print existing fixed monsters
 	for(int k = 0; k < printable_num_fixed_monster_l1; ++k){
-		move(monster_l1[k].x, monster_l1[k].y);
+		move_l1(monster_l1[k].x, monster_l1[k].y);
 		printf("M");
 	}
 	//print existing doors
 	for(int k = 0; k < printable_num_fixed_door_l1; ++k){
-		move(door_l1[k].x, door_l1[k].y);
+		move_l1(door_l1[k].x, door_l1[k].y);
 		printf("%c", door_l1[k].type);
 	}
 
 	//print exsiting random monsters
 	for(int k = 0; k < printable_num_random_monster_l1; ++k){
-		move(random_monster_l1[k].x, random_monster_l1[k].y);
+		move_l1(random_monster_l1[k].x, random_monster_l1[k].y);
 		printf("m");
 	}
 	//print existing HP_box
 	for(int k = 0; k < printable_num_fixed_HP_box_l1; ++k){
-		move(HP_box_l1[k].x, HP_box_l1[k].y);
+		move_l1(HP_box_l1[k].x, HP_box_l1[k].y);
 		printf("H");
 	}
 
 	//print existing ATK_box
 	for(int k = 0; k < printable_num_fixed_ATK_box_l1; ++k){
-		move(ATK_box_l1[k].x, ATK_box_l1[k].y);
+		move_l1(ATK_box_l1[k].x, ATK_box_l1[k].y);
 		printf("A");
 	}
 
 	//print existing DEF_box
 	for(int k = 0; k < printable_num_fixed_DEF_box_l1; ++k){
-		move(DEF_box_l1[k].x, DEF_box_l1[k].y);
+		move_l1(DEF_box_l1[k].x, DEF_box_l1[k].y);
 		printf("D");
 	}
 
 	//print existing keys
 	for(int k = 0; k < printable_num_fixed_key_l1; ++k){
-		move(key_l1[k].x, key_l1[k].y);
+		move_l1(key_l1[k].x, key_l1[k].y);
 		printf("^");
 	}
 
   //print guidance
 	for(int k = 0; k < printable_num_guidance_l1; ++k){
-		move(guidance_l1[k].x, guidance_l1[k].y);
+		move_l1(guidance_l1[k].x, guidance_l1[k].y);
 		printf("?");
 	}
 
   //print store
 	for(int k = 0; k < printable_num_store_l1; ++k){
-		move(store_l1[k].x, store_l1[k].y);
+		move_l1(store_l1[k].x, store_l1[k].y);
 		printf("S");
 	}
 
 
 	//print role position
-	move(x_l1,y_l1);
+	move_l1(x_l1,y_l1);
 	printf("c");
 
 	//print role_attribute
-	move(0,25);
+	move_l1(0,25);
 	printf("Floor: %d", Floor_l1);
-	move(2,25);
+	move_l1(2,25);
 	printf("Level: %d", role_attribute[0]);
-	move(3,25);
+	move_l1(3,25);
 	printf("EXP: %d", role_attribute[1]);
-	move(4,25);
+	move_l1(4,25);
 	printf("HP: %d", role_attribute[2]);
-	move(5,25);
+	move_l1(5,25);
 	printf("ATK: %d",role_attribute[3]);
-	move(6,25);
+	move_l1(6,25);
 	printf("DEF: %d",role_attribute[4]);
-	move(8,25);
+	move_l1(8,25);
 	printf("GOLD: %d",role_attribute[5]);
-	move(9,25);
+	move_l1(9,25);
 	printf("KEY(door): ^(@) %d",role_attribute[6]);
-	move(10,25);
+	move_l1(10,25);
 	printf("           ?($) %d",role_attribute[7]);
-	move(12,0);
+	move_l1(12,0);
 }
 
 void print_prumpt_l1(char n, int * role_attribute){
 	if (n == 'H'){
-		move(12,0);
+		move_l1(12,0);
 		printf("HP +200!");
 	}else if(n == 'A'){
-		move(12,0);
+		move_l1(12,0);
 		printf("ATK +5!");
 	}else if(n == 'D'){
-		move(12,0);
+		move_l1(12,0);
 		printf("DEF +5!");
 	}
 }
@@ -848,7 +849,7 @@ void show_info_l1(int* role_attribute){
 	//if we can not attack the monster
 	//the attack can not hurt them or hp_needed_kill_them > role_HP
 	//just show ???
-	move(12,0);
+	move_l1(12,0);
 	printf("Here is some information about rivals in Floor %d:\n", Floor_l1);
 	if (hp_0 < 0){
 		printf("random monster '0': HP:  %d ATK: %d DEF:  %d HP_needed: ???\n", random_monster_l1[1].HP, random_monster_l1[1].ATK, random_monster_l1[1].DEF);
@@ -864,28 +865,28 @@ void show_info_l1(int* role_attribute){
 
 }
 void shopping(int *role_attribute){
-  move(12,0);
+  move_l1(12,0);
   printf("happy shopping!\n");
   printf(" (press p to continue)\n");
-  while (getch() != 'p'){
+  while (getch_l1() != 'p'){
   }
-  move(12,0);
+  move_l1(12,0);
   printf("\033[K");
-  move(13,0);
+  move_l1(13,0);
   printf("\033[K");
-  move(12,0);
+  move_l1(12,0);
   printf("press t: 50 gold for 10 ATK!\n");
   printf("press y: 50 gold for 10 DEF!\n");
   printf("press u: 50 gold for 100 HP!\n");
   printf(" (press p to continue)\n");
-  char c = getch();
+  char c = getch_l1();
   while (c != 'p'){
     if (c == 't'){
       if (role_attribute[5]>=50){
         role_attribute[5] = role_attribute[5] - 50;
         role_attribute[3] = role_attribute[3] + 10;
         Draw_l1(role_attribute);
-        move(12,0);
+        move_l1(12,0);
         printf("press t: 50 gold for 10 ATK!\n");
         printf("press y: 50 gold for 10 DEF!\n");
         printf("press u: 50 gold for 100 HP!\n");
@@ -897,7 +898,7 @@ void shopping(int *role_attribute){
         role_attribute[5] = role_attribute[5] - 50;
         role_attribute[4] = role_attribute[4] + 10;
         Draw_l1(role_attribute);
-        move(12,0);
+        move_l1(12,0);
         printf("press t: 50 gold for 10 ATK!\n");
         printf("press y: 50 gold for 10 DEF!\n");
         printf("press u: 50 gold for 100 HP!\n");
@@ -909,26 +910,26 @@ void shopping(int *role_attribute){
         role_attribute[5] = role_attribute[5] - 50;
         role_attribute[2] = role_attribute[2] + 100;
         Draw_l1(role_attribute);
-        move(12,0);
+        move_l1(12,0);
         printf("press t: 50 gold for 10 ATK!\n");
         printf("press y: 50 gold for 10 DEF!\n");
         printf("press u: 50 gold for 100 HP!\n");
         printf(" (press p to continue)\n");
       }
     }
-    c = getch();
+    c = getch_l1();
   }
-  move(12,0);
+  move_l1(12,0);
   printf("\033[K");
-  move(13,0);
+  move_l1(13,0);
   printf("\033[K");
-  move(14,0);
+  move_l1(14,0);
   printf("\033[K");
-  move(15,0);
+  move_l1(15,0);
   printf("\033[K");
 }
-//use getch() to read user input_l1 prumptly
-void input_l1(int* role_attribute, char* user_name){
+//use getch_l1() to read user input_l1 prumptly
+void input_l1(int* role_attribute, std::string user_name){
 	if(IsH_l1 == true){
 		print_prumpt_l1('H', role_attribute);
 		IsH_l1 = false;
@@ -975,7 +976,7 @@ void input_l1(int* role_attribute, char* user_name){
   }
 
 	//user input_l1
-	switch(getch()){
+	switch(getch_l1()){
 		case 'w':
 			dir_l1 = UP;
 			break;
@@ -1002,9 +1003,9 @@ void input_l1(int* role_attribute, char* user_name){
 }
 
 
-void logic_function_1_l1(int x, int y, int &change, int b, bool is_down,bool is_up, int* role_attribute, char* user_name){
+void logic_function_1_l1(int x, int y, int &change, int b, bool is_down,bool is_up, int* role_attribute, std::string user_name){
 	//if the cell is wall_l1, then not move
-	if(mvinch(x, y) == '#'){
+	if(mvinch_l1(x, y) == '#'){
 
 	//if the cell is the door to floor_1, then go to floor_1
 }else if(x ==0 && y == 1 && is_up == true){
@@ -1015,45 +1016,45 @@ void logic_function_1_l1(int x, int y, int &change, int b, bool is_down,bool is_
 		floor_2_main(role_attribute,user_name);
 
 	//it is a door
-}else if(mvinch(x, y) == '@'){
+}else if(mvinch_l1(x, y) == '@'){
 		if (role_attribute[6] != 0){
 			delete_sth_l1(x,y,'@');
 			role_attribute[6]--;
 		}
 	//it is a special door
-}else if(mvinch(x, y) == '^'){
+}else if(mvinch_l1(x, y) == '^'){
 		role_attribute[6]++;
 		delete_sth_l1(x,y,'^');
 	//it is a HP_box, it will increase HP by 200
-}else if(mvinch(x, y) == 'H'){
+}else if(mvinch_l1(x, y) == 'H'){
 		delete_sth_l1(x,y,'H');
 		IsH_l1 = true;
 		role_attribute[2] = role_attribute[2] + 200;
 	//it is a STK_box, it will increase ATK by 5
-}else if(mvinch(x, y) == 'A'){
+}else if(mvinch_l1(x, y) == 'A'){
 		delete_sth_l1(x,y,'A');
 		IsA_l1 = true;
 		role_attribute[3] = role_attribute[3] + 5;
 	//it is a DEF_box, it will increase DEF by 5
-}else if(mvinch(x, y) == 'D'){
+}else if(mvinch_l1(x, y) == 'D'){
 		delete_sth_l1(x,y,'D');
 		IsD_l1 = true;
 		role_attribute[4] = role_attribute[4] + 5;
 	//it is a surprising_box, it will have sword or diamond
-}else if(mvinch(x, y) == '?'){
+}else if(mvinch_l1(x, y) == '?'){
     Is_guidance_l1 = true;
     delete_sth_l1(x,y,'?');
     change = change + b;
 	//it is a fixed position monster
 	//calculate the hp_needed_beat_M_l1, if we can kill it, then we can attack it
 	//otherwise, we stay
-}else if(mvinch(x, y) == 'M'){
+}else if(mvinch_l1(x, y) == 'M'){
   m_x = x;
   m_y = y;
   Is_m = true;
 	//it is a random_generated_monster, if we can kill it, then we can attack it
 	//otherwise, we stay
-}else if(mvinch(x, y) == 'm'){
+}else if(mvinch_l1(x, y) == 'm'){
 		int hp_0 = hp_needed_beat_0_l1(role_attribute[3], role_attribute[4]);
 		if (hp_0 >= 0 && hp_0 < role_attribute[2]){
 			update_attribute_l1(50,15,5,3,5,role_attribute);
@@ -1061,7 +1062,7 @@ void logic_function_1_l1(int x, int y, int &change, int b, bool is_down,bool is_
 		}else{
 			x_l1 = x_l1;
 		}
-	}else if (mvinch(x,y) == 'S'){
+	}else if (mvinch_l1(x,y) == 'S'){
 		Is_s = true;
 
 
@@ -1071,7 +1072,7 @@ void logic_function_1_l1(int x, int y, int &change, int b, bool is_down,bool is_
 }
 
 //move up and down to generate different reactions
-void logic_l1(int* role_attribute, char* user_name){
+void logic_l1(int* role_attribute, std::string user_name){
 	switch (dir_l1) {
 		case UP:
 		logic_function_1_l1(x_l1-1,y_l1,x_l1,-1,false, true, role_attribute, user_name);
@@ -1091,7 +1092,7 @@ void logic_l1(int* role_attribute, char* user_name){
   dir_l1 = STOP;
 }
 
-int floor_1_main(int *role_attribute, char* user_name){
+void floor_1_main(int *role_attribute, std::string user_name){
   srand (time(NULL));
   for (int i=0;i<=11;i++){
     for (int j=0;j<=21;j++ ){
@@ -1107,8 +1108,5 @@ int floor_1_main(int *role_attribute, char* user_name){
 		Draw_l1(role_attribute);
 		input_l1(role_attribute, user_name);
 		logic_l1(role_attribute, user_name);
-
-
 	}
-	return 0;
 }
