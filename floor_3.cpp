@@ -1,5 +1,6 @@
 //Floor 3
 #include <iostream>
+#include <fstream>
 #include <ctime>
 #include <unistd.h>
 #include <termios.h>
@@ -49,7 +50,7 @@ int count_Q = 0, count_setup_l3=0;
 int Floor_l3 = 3;
 enum eDirection{STOP = 0, LEFT, RIGHT, UP, DOWN};
 eDirection dir_l3;
-bool wall_l3[12][22], GameOver_l3, save_l3, IsH_l3, IsA_l3, IsD_l3, IsQ_l3, Is_Info_l3, Is_Shop_l3, Leave_Shop_l3, IsM_l3;
+bool wall_l3[12][22], save_l3, IsH_l3, IsA_l3, IsD_l3, IsQ_l3, Is_Info_l3, Is_Shop_l3, Leave_Shop_l3, IsM_l3;
 
 //all functions used in floor 3
 //mimic move()in ncurses
@@ -90,32 +91,33 @@ void Draw_l3(int *role_attribute);
 //check what is the char in the cell that the role is moving to
 //different reaction regarding different cases
 //we need to delete things except the wall(we should not print them in the next loop)
-void logic_function_1_l3(int x, int y, int &change, int b, bool is_down,bool is_up, int *role_attribute, string user_name);
+void logic_function_1_l3(int x, int y, int &change, int b, bool is_down,bool is_up, int *role_attribute, string user_name, bool &GameOver);
 //print notifications or interact with users (if any), then get user input
-void input_l3(int * role_attribute, string user_name);
+void input_l3(int * role_attribute, string user_name, bool &GameOver);
 //move up and down to generate different reactions
-void logic_l3(int* role_attribute, string user_name);
+void logic_l3(int* role_attribute, string user_name, bool &GameOver);
 
 
 
 //floor_3_main function
-void floor_3_main(int *role_attribute, string user_name){
+void floor_3_main(int *role_attribute, string user_name, bool &GameOver){
 	srand (time(NULL));
-	for (int i=0;i<=11;i++){
-    for (int j=0;j<=21;j++ ){
-      wall_l3[i][j] = false;
-    }
-  }
-	//start a loop
-	if (count_setup_l3 == 0){
-		Setup_l3();
-		count_setup_l3++;
-	}
-	while(!GameOver_l3){
-		Draw_l3(role_attribute);
-		input_l3(role_attribute, user_name);
-		logic_l3(role_attribute, user_name);
-
+	if(GameOver == false){
+		for (int i=0;i<=11;i++){
+	    for (int j=0;j<=21;j++ ){
+	      wall_l3[i][j] = false;
+	    }
+	  }
+		//start a loop
+		if (count_setup_l3 == 0){
+			Setup_l3();
+			count_setup_l3++;
+		}
+		while(!GameOver){
+			Draw_l3(role_attribute);
+			input_l3(role_attribute, user_name, GameOver);
+			logic_l3(role_attribute, user_name, GameOver);
+		}
 	}
 }
 
@@ -252,13 +254,17 @@ int hp_needed_beat_m_l3(int role_ATK, int role_DEF){
 
 
 //click 's', save status into .txt file in gamestatus folder
-void saving_status_l3(string user_name){
-	cout << "Do you want to leave the game?";
-
-	string filename = "game_status/"+user_name+"_floor_2.txt";
-
-	cout<<"game status already saved!\ngame over...";
-	GameOver_l3 = true;
+void saving_status_l3(int * role_attribute,string user_name){
+	move_l3(12,0);
+	string filename = user_name + ".txt";
+	ofstream fout;
+	fout.open(filename.c_str());
+	for(int i = 0; i < 8; i++){
+		fout << role_attribute[i]<<" ";
+	}
+	fout << role_attribute[8]<< endl;
+	fout.close();
+	cout << "game status already saved!\ngame over...";
 }
 
 // when click 'i' for more info of rivals in Floor 2
@@ -452,7 +458,6 @@ void update_attribute_l3(int hp_value, int atk_value, int def_value,
 
 //setup all positions in this floor
 void Setup_l3(){
-	GameOver_l3 =  false;
 	dir_l3 = STOP;
 	x_l3 = 10;
 	y_l3 = 10;
@@ -636,17 +641,17 @@ void Draw_l3(int *role_attribute){
 //check what is the char in the cell that the role is moving to
 //different reaction regarding different cases
 //we need to delete things except the wall(we should not print them in the next loop)
-void logic_function_1_l3(int x, int y, int &change, int b, bool is_down,bool is_up, int *role_attribute, string user_name){
+void logic_function_1_l3(int x, int y, int &change, int b, bool is_down,bool is_up, int *role_attribute, string user_name, bool &GameOver){
 	//if the cell is wall, then not move_l3
 	if(mvinch_l3(x,y) == '#'){
 		x = x;
 	//if the cell is the door to floor_4, then go to floor_4
 	}else if(y == 0 && x == 2 && is_up == true){
-		floor_4_main(role_attribute,user_name);
+		//floor_4_main(role_attribute,user_name);
 
 	//if the cell is the door to floor_2, then go to floor_2
 	}else if(y == height_l3+1 && x == 10 && is_down == true){
-		floor_2_main(role_attribute,user_name);
+		floor_2_main(role_attribute,user_name, GameOver);
 
 	//it is a door
 	}else if(mvinch_l3(x,y) == '@'){
@@ -701,7 +706,7 @@ void logic_function_1_l3(int x, int y, int &change, int b, bool is_down,bool is_
 }
 
 //print notifications or interact with users (if any), then get user input
-void input_l3(int * role_attribute, string user_name){
+void input_l3(int * role_attribute, string user_name, bool &GameOver){
 	//when collecting H, A, D, !, prumpt information of that
 	if(IsH_l3 == true){
 		print_prumpt_l3('H', role_attribute);
@@ -716,7 +721,7 @@ void input_l3(int * role_attribute, string user_name){
 		print_prumpt_l3('Q', role_attribute);
 		IsQ_l3 = false;
 	}else if(save_l3 == true){
-		saving_status_l3(user_name);
+		saving_status_l3(role_attribute,user_name);
 	}else if(Is_Info_l3 == true){
 		show_info_l3(role_attribute);
 		Is_Info_l3 = false;
@@ -782,7 +787,8 @@ void input_l3(int * role_attribute, string user_name){
 			dir_l3 = RIGHT;
 			break;
 		case 'q':
-			GameOver_l3 = true;
+			GameOver = true;
+			dir_l3 = STOP;
 			break;
 		case '0':
 			save_l3 = true;
@@ -793,25 +799,25 @@ void input_l3(int * role_attribute, string user_name){
 			break;
 		default:
 		//it is like a loop
-			input_l3(role_attribute, user_name);
+			input_l3(role_attribute, user_name, GameOver);
 			break;
 	}
 }
 
 //move up and down to generate different reactions
-void logic_l3(int* role_attribute, string user_name){
+void logic_l3(int* role_attribute, string user_name, bool &GameOver){
 	switch (dir_l3) {
 		case UP:
-		logic_function_1_l3(x_l3,y_l3-1,y_l3,-1,false, true, role_attribute, user_name);
+		logic_function_1_l3(x_l3,y_l3-1,y_l3,-1,false, true, role_attribute, user_name, GameOver);
 			break;
 		case DOWN:
-		logic_function_1_l3(x_l3,y_l3+1,y_l3,1,true, false, role_attribute, user_name);
+		logic_function_1_l3(x_l3,y_l3+1,y_l3,1,true, false, role_attribute, user_name, GameOver);
 			break;
 		case LEFT:
-			logic_function_1_l3(x_l3-1,y_l3,x_l3,-1, false, false, role_attribute, user_name);
+			logic_function_1_l3(x_l3-1,y_l3,x_l3,-1, false, false, role_attribute, user_name, GameOver);
 			break;
 		case RIGHT:
-			logic_function_1_l3(x_l3+1,y_l3,x_l3,1, false, false, role_attribute, user_name);
+			logic_function_1_l3(x_l3+1,y_l3,x_l3,1, false, false, role_attribute, user_name, GameOver);
 			break;
 		default:
 			break;
