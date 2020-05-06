@@ -47,7 +47,6 @@ Fixed_sth_coordinate * ATK_box_l3 = new Fixed_sth_coordinate[num_fixed_ATK_box_l
 Fixed_sth_coordinate * DEF_box_l3 = new Fixed_sth_coordinate[num_fixed_DEF_box_l3];
 
 int count_Q = 0, count_setup_l3=0;
-int Floor_l3 = 3;
 enum eDirection{STOP = 0, LEFT, RIGHT, UP, DOWN};
 eDirection dir_l3;
 bool wall_l3[12][22], save_l3, IsH_l3, IsA_l3, IsD_l3, IsQ_l3, Is_Info_l3, Is_Shop_l3, Leave_Shop_l3, IsM_l3;
@@ -68,7 +67,7 @@ void deleteEntry_l3(Fixed_sth_coordinate * &array, int & size, int x, int y);
 //calculate hp_needed to beat random monster 'm'
 int hp_needed_beat_m_l3(int role_ATK, int role_DEF);
 //click 's', save status into .txt file in gamestatus folder
-void saving_status_l3(int* role_attribute, string user_name, bool &GameOver);
+void saving_status_l3(int *role_attribute, string user_name, bool &GameOver);
 // when click 'i' for more info of rivals in Floor 3
 void show_info_l3(int *role_attribute);
 //upgrade when exp reaches 99
@@ -256,18 +255,16 @@ int hp_needed_beat_m_l3(int role_ATK, int role_DEF){
 //click 's', save status into .txt file in gamestatus folder
 void saving_status_l3(int * role_attribute,string user_name, bool &GameOver){
 	move_l3(12,0);
-	string filename = user_name + ".txt";
+	string filename = "output/"+user_name + ".txt";
 	ofstream fout;
 	fout.open(filename.c_str());
-	fout <<Floor_l3 <<" ";
-	for(int i = 0; i < 8; i++){
+	for(int i = 0; i < 9; i++){
 		fout << role_attribute[i]<<" ";
 	}
-	fout << role_attribute[8]<< endl;
+	fout << role_attribute[9]<< endl;
 	fout.close();
-	cout << "game status already saved!\ngame over...\n";
+	cout << "game status already saved!\ngame over...";
 	GameOver = true;
-
 }
 
 // when click 'i' for more info of rivals in Floor 2
@@ -278,7 +275,7 @@ void show_info_l3(int *role_attribute){
 	//the attack can not hurt them or hp_needed_kill_them > role_HP
 	//just show ???
 	move_l3(12,0);
-	cout << "Here is some information about rivals in Floor "<< Floor_l3<<": "<< endl;;
+	cout << "Here is some information about rivals in Floor "<< role_attribute[0]<<": "<< endl;;
 	if (hp_m < 0){
 		cout << "random monster 'm': HP:  "<<random_monster_l3[1].HP<<" ATK: "<<random_monster_l3[1].ATK<<" DEF:  "<< random_monster_l3[1].DEF<<" HP_needed: ???"<< endl;
 	}else{
@@ -288,17 +285,17 @@ void show_info_l3(int *role_attribute){
 
 //upgrade when exp reaches 99
 void upgrade_l3(int* role_attribute){
-	if(role_attribute[0] <= 3){
+	if(role_attribute[1] <= 3){
 		//atk
 		role_attribute[3] = role_attribute[3] + 3;
 		//def
 		role_attribute[4] = role_attribute[4] + 3;
 		//gold
-		role_attribute[5] = role_attribute[5] + 20;
+		role_attribute[2] = role_attribute[2] + 100;
 	}else{
 		role_attribute[3] = role_attribute[3] + 9;
 		role_attribute[4] = role_attribute[4] + 9;
-		role_attribute[5] = role_attribute[5] + 60;
+		role_attribute[2] = role_attribute[5] + 200;
 	}
 }
 //when encountering M, questions will be printed.
@@ -322,7 +319,7 @@ void ask_questions_l3(int * role_attribute,int x, int y){
 			if (ans == 't'){
 				cout << "Great job!\n";
 				deleteEntry_l3(monster_l3,num_fixed_monster_l3,x,y);
-				role_attribute[1]= role_attribute[1]+5;
+				role_attribute[6]= role_attribute[6]+5;
 				role_attribute[2]= role_attribute[2]+5;
 				role_attribute[3]= role_attribute[3]+5;
 				role_attribute[4]= role_attribute[4]+5;
@@ -344,7 +341,7 @@ void ask_questions_l3(int * role_attribute,int x, int y){
 			if (ans == 'f'){
 				cout << "Great job!\n";
 				deleteEntry_l3(monster_l3,num_fixed_monster_l3,x,y);
-				role_attribute[1]= role_attribute[1]+5;
+				role_attribute[6]= role_attribute[6]+5;
 				role_attribute[2]= role_attribute[2]+5;
 				role_attribute[3]= role_attribute[3]+5;
 				role_attribute[4]= role_attribute[4]+5;
@@ -366,7 +363,7 @@ void ask_questions_l3(int * role_attribute,int x, int y){
 			if (ans == 't'){
 				cout << "Great job!\n";
 				deleteEntry_l3(monster_l3,num_fixed_monster_l3,x,y);
-				role_attribute[1]= role_attribute[1]+5;
+				role_attribute[6]= role_attribute[6]+5;
 				role_attribute[2]= role_attribute[2]+5;
 				role_attribute[3]= role_attribute[3]+5;
 				role_attribute[4]= role_attribute[4]+5;
@@ -388,7 +385,7 @@ void ask_questions_l3(int * role_attribute,int x, int y){
 			if (ans == 't'){
 				cout << "Great job!\n";
 				deleteEntry_l3(monster_l3,num_fixed_monster_l3,x,y);
-				role_attribute[1]= role_attribute[1]+5;
+				role_attribute[6]= role_attribute[6]+5;
 				role_attribute[2]= role_attribute[2]+5;
 				role_attribute[3]= role_attribute[3]+5;
 				role_attribute[4]= role_attribute[4]+5;
@@ -410,7 +407,7 @@ void print_prumpt_l3(char n, int* role_attribute){
 	move_l3(12,0);
 	if (n == 'H'){
 		move_l3(12,0);
-		cout << "HP +200!";
+		cout << "HP +100!";
 	}else if(n == 'A'){
 		move_l3(12,0);
 		cout << "ATK +5!";
@@ -421,15 +418,15 @@ void print_prumpt_l3(char n, int* role_attribute){
 		move_l3(12,0);
 		cout << "Good luck! Bye!";
 	}else if(n == 'Q'){
-		if(count_Q == 1 && role_attribute[7] == 0){
+		if(count_Q == 1 && role_attribute[8] == 0){
 			cout << "Thanks for saving me! This is the key for the door $ on the second floor.\n";
 			cout << "Collect '!' and give it back to me, I can tell you how to rescue Dr.L.\n";
-			role_attribute[7]++;
-		}else if(count_Q > 1 && role_attribute[7] == 1){
+			role_attribute[8]++;
+		}else if(count_Q > 1 && role_attribute[8] == 1){
 			cout << "Thanks for saving me! This is the key for the door $ on the second floor.\n";
 			cout << "Collect '!' and give it back to me, I can tell you how to rescue Dr.L.\n";
-		}else if(role_attribute[8] == 1){
-			role_attribute[8]--;
+		}else if(role_attribute[9] == 1){
+			role_attribute[9]--;
 			cout << "Great! The Big Big monster is afraid of snakes.\nGo and save Dr.L!\n";
 		}
 	}
@@ -448,13 +445,11 @@ void update_attribute_l3(int hp_value, int atk_value, int def_value,
 		}
 		hp = hp - (role_attribute[3]-def);
 	}
-	role_attribute[3] = role_attribute[3] + atk/10;
-	role_attribute[4] = role_attribute[4] + def/10;
-	role_attribute[1] = role_attribute[1] + add_exp;
-	role_attribute[5] = role_attribute[5] + add_gold;
-	if(role_attribute[1] > 99){
-		role_attribute[0]++;
-		role_attribute[1] = role_attribute[1] - 99;
+	role_attribute[5] = role_attribute[5] + add_exp;
+	role_attribute[6] = role_attribute[6] + add_gold;
+	if(role_attribute[5] > 99){
+		role_attribute[1]++;
+		role_attribute[5] = role_attribute[5] - 99;
 		upgrade_l3(role_attribute);
 	}
 }
@@ -618,14 +613,14 @@ void Draw_l3(int *role_attribute){
 	cout << "Q";
 	move_l3(4,7);
 	cout << "+";
-	move_l3(12,0);
+	move_l3(14,0);
 	//print role_attribute
 	move_l3(0,25);
-	cout << "Floor: "<<Floor_l3;
+	cout << "Floor: "<<role_attribute[0];
 	move_l3(2,25);
-	cout << "Level: "<<role_attribute[0];
+	cout << "Level: "<<role_attribute[1];
 	move_l3(3,25);
-	cout << "EXP: "<<role_attribute[1];
+	cout << "EXP: "<<role_attribute[5];
 	move_l3(4,25);
 	cout << "HP: "<<role_attribute[2];
 	move_l3(5,25);
@@ -633,11 +628,15 @@ void Draw_l3(int *role_attribute){
 	move_l3(6,25);
 	cout << "DEF: "<<role_attribute[4];
 	move_l3(8,25);
-	cout << "GOLD: "<<role_attribute[5];
+	cout << "GOLD: "<<role_attribute[6];
 	move_l3(9,25);
-	cout << "KEY(door): ^(@) "<<role_attribute[6];
+	cout << "KEY(door): ^(@) "<<role_attribute[7];
 	move_l3(10,25);
-	cout << "           ?($) "<<role_attribute[7];
+	cout << "           &($) "<<role_attribute[8];
+	move_l3(0,40);
+	cout << "'0' to save the game.";
+	move_l3(1,40);
+	cout << "'q' to quit the game.";
 	move_l3(12,0);
 }
 
@@ -650,21 +649,23 @@ void logic_function_1_l3(int x, int y, int &change, int b, bool is_down,bool is_
 		x = x;
 	//if the cell is the door to floor_4, then go to floor_4
 	}else if(y == 0 && x == 2 && is_up == true){
-		//floor_4_main(role_attribute,user_name);
+		role_attribute[0]++;
+		floor_4_main(role_attribute,user_name, GameOver);
 
 	//if the cell is the door to floor_2, then go to floor_2
 	}else if(y == height_l3+1 && x == 10 && is_down == true){
+		role_attribute[0]--;
 		floor_2_main(role_attribute,user_name, GameOver);
 
 	//it is a door
 	}else if(mvinch_l3(x,y) == '@'){
-		if (role_attribute[6] != 0){
+		if (role_attribute[7] != 0){
 			deleteEntry_l3(door_l3, num_fixed_door_l3,x,y);
-			role_attribute[6]--;
+			role_attribute[7]--;
 		}
 	//Q is info NPC
 	}else if(mvinch_l3(x,y) == '^'){
-		role_attribute[6]++;
+		role_attribute[7]++;
 		deleteEntry_l3(key_l3,num_fixed_key_l3,x,y);
 	//Q is info npc
 	}else if(mvinch_l3(x,y) == 'Q'){
@@ -673,22 +674,21 @@ void logic_function_1_l3(int x, int y, int &change, int b, bool is_down,bool is_
 	//it is a STK_box, it will increase ATK by 5
 	}else if(mvinch_l3(x,y) == '+'){
 		Is_Shop_l3 = true;
-	//it is a STK_box, it will increase ATK by 5
 	}else if(mvinch_l3(x,y) == 'H'){
 		deleteEntry_l3(HP_box_l3,num_fixed_HP_box_l3,x,y);
 		IsH_l3 = true;
-		role_attribute[2] = role_attribute[2] + 200;
-	//it is a STK_box, it will increase ATK by 5
+		role_attribute[2] = role_attribute[2] + 100;
+	//it is a STK_box, it will increase HP by 100
 	}else if(mvinch_l3(x,y) == 'A'){
 		deleteEntry_l3(ATK_box_l3, num_fixed_ATK_box_l3, x,y);
 		IsA_l3 = true;
 		role_attribute[3] = role_attribute[3] + 5;
-	//it is a DEF_box, it will increase DEF by 5
+	//it is a DEF_box, it will increase ATK by 5
 	}else if(mvinch_l3(x,y) == 'D'){
 		deleteEntry_l3(DEF_box_l3, num_fixed_DEF_box_l3,x,y);
 		IsD_l3 = true;
 		role_attribute[4] = role_attribute[4] + 5;
-		//it is a fixed position monster, with questions
+		//it is a DEF_box, it will increase DEF by 5
 	}else if(mvinch_l3(x,y) == 'M'){
 		IsM_l3 = true;
 		m_x_l3 = x;
@@ -724,7 +724,7 @@ void input_l3(int * role_attribute, string user_name, bool &GameOver){
 		print_prumpt_l3('Q', role_attribute);
 		IsQ_l3 = false;
 	}else if(save_l3 == true){
-	  saving_status_l3(role_attribute,user_name, GameOver);
+		saving_status_l3(role_attribute,user_name, GameOver);
 		dir_l3 = STOP;
 		return;
 	}else if(Is_Info_l3 == true){
@@ -744,29 +744,29 @@ void input_l3(int * role_attribute, string user_name, bool &GameOver){
 	}else if(Is_Shop_l3 == true){
 		//when there is a is a shop.
 		//players can purchase by golds
-		move_l3(12,0);
+		move_l3(14,0);
 		cout << "Hello! The forth floor is extremely dangerous.\n";
 		cout << "You should equip yourself if you have enough Gold.\n";
 		cout << "HP+1000: 100(press '1')\nATK+20: 50(press '2')\nDEF+20: 50(press'3')\n(press '0' to leave)\n";
 		char ch = getch_l3();
 		if(ch == '1'){
-			if(role_attribute[5] >= 100){
+			if(role_attribute[6] >= 100){
 				role_attribute[2] = role_attribute[2] + 1000;
-				role_attribute[5] = role_attribute[5] - 100;
+				role_attribute[6] = role_attribute[6] - 100;
 			}
 			dir_l3 = STOP;
 			return;
 		}else if (ch == '2'){
-			if(role_attribute[5] >= 50){
+			if(role_attribute[6] >= 50){
 				role_attribute[3] = role_attribute[3] + 20;
-				role_attribute[5] = role_attribute[5] - 50;
+				role_attribute[6] = role_attribute[6] - 50;
 			}
 			dir_l3 = STOP;
 			return;
 		}else if( ch == '3'){
-			if(role_attribute[5] >= 50){
+			if(role_attribute[6] >= 50){
 				role_attribute[4] = role_attribute[4] + 20;
-				role_attribute[5]= role_attribute[5] - 50;
+				role_attribute[6]= role_attribute[6] - 50;
 			}
 			dir_l3 = STOP;
 			return;
