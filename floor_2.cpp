@@ -69,7 +69,7 @@ void deleteEntry(Fixed_sth_coordinate * &array, int & size, int x, int y);
 //calculate hp_needed to beat random monster 'm'
 int hp_needed_beat_m(int role_ATK, int role_DEF);
 //click 's', save status into .txt file in gamestatus folder
-void saving_status(string user_name);
+void saving_status(int * role_attribute, string user_name, bool &GameOver);
 // when click 'i' for more info of rivals in Floor 2
 void show_info(int *role_attribute);
 //upgrade when exp reaches 99
@@ -226,17 +226,20 @@ int hp_needed_beat_m(int role_ATK, int role_DEF){
 }
 
 //function: click 's', save status into .txt file in gamestatus folder
-void saving_status(int * role_attribute,string user_name){
+void saving_status(int * role_attribute,string user_name, bool &GameOver){
 	move(12,0);
 	string filename = user_name + ".txt";
 	ofstream fout;
 	fout.open(filename.c_str());
+	fout << Floor_l2 << " ";
+
 	for(int i = 0; i < 8; i++){
 		fout << role_attribute[i]<<" ";
 	}
 	fout << role_attribute[8]<< endl;
 	fout.close();
-	cout << "game status already saved!\ngame over...";
+	cout << "game status already saved!\ngame over...\n";
+	GameOver = true;
 }
 
 // when click 'i' for more info of rivals in Floor 2
@@ -675,7 +678,9 @@ void input(int* role_attribute, string user_name, bool &GameOver){
 			return;
 		}
 	}else if(save == true){
-		saving_status(role_attribute,user_name);
+	  saving_status(role_attribute,user_name, GameOver);
+		dir = STOP;
+		return;
 	}else if(Is_Info == true){
 		show_info(role_attribute);
 		Is_Info = false;
