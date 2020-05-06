@@ -1,11 +1,13 @@
 //Floor 1
-#include <iostream>
 #include <string>
 #include <time.h>
 #include "floor.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <termios.h>
+#include <fstream>
+#include <iostream>
+using namespace std;
 /* symbol used on floor 1
 #: wall_l1, space between wall_l1s is the door connecting different floor
 H: HP_box, increase 200 HP
@@ -36,21 +38,21 @@ struct Fixed_sth_coordinate{
 };
 
 //use struct to store fixed and random monster's attribute, treasure's/door's/boxes' position,
-Fixed_sth_coordinate monster_l1[num_fixed_monster_l1];
-Fixed_sth_coordinate door_l1[num_fixed_door_l1];
-Fixed_sth_coordinate key_l1[num_fixed_key_l1];
-Fixed_sth_coordinate random_monster_l1[num_random_monster_l1];
-Fixed_sth_coordinate HP_box_l1[num_fixed_HP_box_l1];
-Fixed_sth_coordinate ATK_box_l1[num_fixed_ATK_box_l1];
-Fixed_sth_coordinate DEF_box_l1[num_fixed_DEF_box_l1];
-Fixed_sth_coordinate store_l1[num_store_l1];
-Fixed_sth_coordinate guidance_l1[num_guidance_l1];
+Fixed_sth_coordinate * monster_l1 = new Fixed_sth_coordinate [num_fixed_monster_l1];
+Fixed_sth_coordinate * door_l1 = new Fixed_sth_coordinate [num_fixed_door_l1];
+Fixed_sth_coordinate * key_l1 = new Fixed_sth_coordinate [num_fixed_key_l1];
+Fixed_sth_coordinate * random_monster_l1 = new Fixed_sth_coordinate [num_random_monster_l1];
+Fixed_sth_coordinate * HP_box_l1 = new Fixed_sth_coordinate[num_fixed_HP_box_l1];
+Fixed_sth_coordinate * ATK_box_l1 = new Fixed_sth_coordinate[num_fixed_ATK_box_l1];
+Fixed_sth_coordinate * DEF_box_l1 = new Fixed_sth_coordinate[num_fixed_DEF_box_l1];
+Fixed_sth_coordinate * store_l1 = new Fixed_sth_coordinate[num_store_l1];
+Fixed_sth_coordinate * guidance_l1 = new Fixed_sth_coordinate[num_guidance_l1];
 
 int x_l1, y_l1;
 int small_monster_x_l1[10], small_monster_y_l1[10];
 
-int count_Setup_l1_l1 = 0, Floor_l1 = 1;
-bool GameOver_l1, save_l1, IsH_l1, IsA_l1, IsD_l1, Is_Sur_l1, Is_Info_l1, Is_guidance_l1, Is_m,Is_s= false;
+int count_Setup_l1_l1 = 0;
+bool save_l1, IsH_l1, IsA_l1, IsD_l1, Is_Sur_l1, Is_Info_l1, Is_guidance_l1, Is_m,Is_s= false;
 bool wall_l1[12][22];
 enum eDirection{STOP = 0, LEFT, RIGHT, UP, DOWN};
 eDirection dir_l1;
@@ -138,9 +140,21 @@ char mvinch_l1(int x, int y){
 	}
   return (' ');
 }
+void saving_status_l1(int * role_attribute,string user_name, bool &GameOver){
+	move_l1(12,0);
+	string filename = "output/"+user_name + ".txt";
+	ofstream fout;
+	fout.open(filename.c_str());
+	for(int i = 0; i < 9; i++){
+		fout << role_attribute[i]<<" ";
+	}
+	fout << role_attribute[9]<< std::endl;
+	fout.close();
+	printf("game status already saved!\ngame over...");
+	GameOver = true;
+}
 //Setup_l1 all positions in this floor
 void Setup_l1(){
-	GameOver_l1 =  false;
 	dir_l1 = STOP;
 	x_l1 = 1;
 	y_l1 = 1;
@@ -258,8 +272,8 @@ void upgrade_l1(int* role_attribute){
 	role_attribute[3] = role_attribute[3] + 5;
 	//def
 	role_attribute[4] = role_attribute[4] + 5;
-	//gold
-	role_attribute[5] = role_attribute[5] + 20;
+	//HP
+	role_attribute[2] = role_attribute[5] + 100;
 }
 
 void update_attribute_l1(int hp_value, int atk_value, int def_value,
@@ -272,11 +286,11 @@ void update_attribute_l1(int hp_value, int atk_value, int def_value,
 		};
 		hp = hp - (role_attribute[3]-def);
 	}
-	role_attribute[1] = role_attribute[1] + add_exp;
-	role_attribute[5] = role_attribute[5] + add_gold;
-	if(role_attribute[1] > 99){
-		role_attribute[0]++;
-		role_attribute[1] = role_attribute[1] - 99;
+	role_attribute[5] = role_attribute[5] + add_exp;
+	role_attribute[6] = role_attribute[6] + add_gold;
+	if(role_attribute[5] > 99){
+		role_attribute[1]++;
+		role_attribute[5] = role_attribute[5] - 99;
 		upgrade_l1(role_attribute);
 	}
 }
@@ -479,7 +493,7 @@ bool mtest(){
 void guide(int x, int y, std::string user_name){
   if (x == 2 && y == 1){
     move_l1(12,0);
-    std::cout << "Hi "<<user_name<<", Welcome to Tower of Programmer!"<< std::endl;
+    cout << "Hi " << user_name << ", Welcome to Tower of Programmer!";
     printf(" (press p to continue)\n");
     while (getch_l1() != 'p'){
     }
@@ -576,6 +590,24 @@ void guide(int x, int y, std::string user_name){
     printf("\033[K");
     move_l1(12,0);
     printf("If you can answer questions correctly, monsters will be weakened.");
+		printf(" (press p to continue)\n");
+    while (getch_l1() != 'p'){
+    }
+    move_l1(12,0);
+    printf("\033[K");
+    move_l1(13,0);
+    printf("\033[K");
+    move_l1(12,0);
+    printf("In the second floor, if you answer M's question correctly, it will surrender.");
+		printf(" (press p to continue)\n");
+		while (getch_l1() != 'p'){
+		}
+		move_l1(12,0);
+		printf("\033[K");
+		move_l1(13,0);
+		printf("\033[K");
+		move_l1(12,0);
+		printf("press 0 to save the game; press q to quit the game");
     printf(" (press p to continue)\n");
     while (getch_l1() != 'p'){
     }
@@ -809,11 +841,11 @@ void Draw_l1(int* role_attribute){
 
 	//print role_attribute
 	move_l1(0,25);
-	printf("Floor: %d", Floor_l1);
+	printf("Floor: %d", role_attribute[0]);
 	move_l1(2,25);
-	printf("Level: %d", role_attribute[0]);
+	printf("Level: %d", role_attribute[1]);
 	move_l1(3,25);
-	printf("EXP: %d", role_attribute[1]);
+	printf("EXP: %d", role_attribute[5]);
 	move_l1(4,25);
 	printf("HP: %d", role_attribute[2]);
 	move_l1(5,25);
@@ -821,18 +853,22 @@ void Draw_l1(int* role_attribute){
 	move_l1(6,25);
 	printf("DEF: %d",role_attribute[4]);
 	move_l1(8,25);
-	printf("GOLD: %d",role_attribute[5]);
+	printf("GOLD: %d",role_attribute[6]);
 	move_l1(9,25);
-	printf("KEY(door): ^(@) %d",role_attribute[6]);
+	printf("KEY(door): ^(@) %d",role_attribute[7]);
 	move_l1(10,25);
-	printf("           ?($) %d",role_attribute[7]);
+	printf("           &($) %d",role_attribute[8]);
+	move_l1(0,40);
+	printf("'0' to save the game.");
+	move_l1(1,40);
+	printf("'q' to quit the game.");
 	move_l1(12,0);
 }
 
 void print_prumpt_l1(char n, int * role_attribute){
 	if (n == 'H'){
 		move_l1(12,0);
-		printf("HP +200!");
+		printf("HP +100!");
 	}else if(n == 'A'){
 		move_l1(12,0);
 		printf("ATK +5!");
@@ -850,18 +886,20 @@ void show_info_l1(int* role_attribute){
 	//the attack can not hurt them or hp_needed_kill_them > role_HP
 	//just show ???
 	move_l1(12,0);
-	printf("Here is some information about rivals in Floor %d:\n", Floor_l1);
+	printf("Here is some information about rivals in Floor %d:\n", role_attribute[0]);
 	if (hp_0 < 0){
-		printf("random monster '0': HP:  %d ATK: %d DEF:  %d HP_needed: ???\n", random_monster_l1[1].HP, random_monster_l1[1].ATK, random_monster_l1[1].DEF);
+		printf("random monster 'm': HP:  %d ATK: %d DEF:  %d HP_needed: ???\n", random_monster_l1[0].HP, random_monster_l1[0].ATK, random_monster_l1[0].DEF);
 	}else{
-		printf("random monster '0': HP:  %d ATK: %d DEF:  %d HP_needed: %d\n", random_monster_l1[1].HP, random_monster_l1[1].ATK, random_monster_l1[1].DEF, hp_0);
+		printf("random monster 'm': HP:  %d ATK: %d DEF:  %d HP_needed: %d\n", random_monster_l1[0].HP, random_monster_l1[0].ATK, random_monster_l1[0].DEF, hp_0);
 	}
 	if (hp_M < 0){
-		printf("fixed monster 'M': HP:  %d ATK: %d DEF:  %d HP_needed: ???\n", monster_l1[1].HP, monster_l1[1].ATK, monster_l1[1].DEF);
+		printf("fixed monster 'M': HP:  %d ATK: %d DEF:  %d HP_needed: ???\n", monster_l1[0].HP, monster_l1[0].ATK, monster_l1[0].DEF);
 	}else{
-		printf("fixed monster 'M': HP:  %d ATK: %d DEF:  %d HP_needed: %d\n", monster_l1[1].HP, monster_l1[1].ATK, monster_l1[1].DEF, hp_M);
+		printf("fixed monster 'M': HP:  %d ATK: %d DEF:  %d HP_needed: %d\n", monster_l1[0].HP, monster_l1[0].ATK, monster_l1[0].DEF, hp_M);
 	}
 	printf("'!' represents treasures. They will help you.\n");
+	printf("'0' to save the game.\n");
+  printf("'q' to quit the game.\n");
 
 }
 void shopping(int *role_attribute){
@@ -882,8 +920,8 @@ void shopping(int *role_attribute){
   char c = getch_l1();
   while (c != 'p'){
     if (c == 't'){
-      if (role_attribute[5]>=50){
-        role_attribute[5] = role_attribute[5] - 50;
+      if (role_attribute[6]>=50){
+        role_attribute[6] = role_attribute[6] - 50;
         role_attribute[3] = role_attribute[3] + 10;
         Draw_l1(role_attribute);
         move_l1(12,0);
@@ -894,8 +932,8 @@ void shopping(int *role_attribute){
       }
     }
     if (c == 'y'){
-      if (role_attribute[5]>=50){
-        role_attribute[5] = role_attribute[5] - 50;
+      if (role_attribute[6]>=50){
+        role_attribute[6] = role_attribute[6] - 50;
         role_attribute[4] = role_attribute[4] + 10;
         Draw_l1(role_attribute);
         move_l1(12,0);
@@ -907,7 +945,7 @@ void shopping(int *role_attribute){
     }
     if (c == 'u'){
       if (role_attribute[5]>=50){
-        role_attribute[5] = role_attribute[5] - 50;
+        role_attribute[6] = role_attribute[6] - 50;
         role_attribute[2] = role_attribute[2] + 100;
         Draw_l1(role_attribute);
         move_l1(12,0);
@@ -942,6 +980,10 @@ void input_l1(int* role_attribute, std::string user_name, bool &GameOver){
 	}else if(Is_Info_l1 == true){
 		show_info_l1(role_attribute);
 		Is_Info_l1 = false;
+	}else if(save_l1 == true){
+		saving_status_l1(role_attribute,user_name, GameOver);
+		dir_l1 = STOP;
+		return;
 	}else if(Is_guidance_l1 == true){
     guide (x_l1,y_l1,user_name);
     Is_guidance_l1 = false;
@@ -993,6 +1035,9 @@ void input_l1(int* role_attribute, std::string user_name, bool &GameOver){
 			GameOver = true;
 			dir_l1 = STOP;
 			break;
+		case '0':
+		  save_l1 = true;
+		  break;
 		case 'i':
 			Is_Info_l1 = true;
 			break;
@@ -1008,29 +1053,26 @@ void logic_function_1_l1(int x, int y, int &change, int b, bool is_down,bool is_
 	//if the cell is wall_l1, then not move
 	if(mvinch_l1(x, y) == '#'){
 
-	//if the cell is the door to floor_1, then go to floor_1
-}else if(x ==0 && y == 1 && is_up == true){
-
-
 	//if the cell is the door to floor_2, then go to floor_2
 }else if(x == 0 && y == 20 && is_up == true){
+	  role_attribute[0]++;
 		floor_2_main(role_attribute,user_name, GameOver);
 
 	//it is a door
 }else if(mvinch_l1(x, y) == '@'){
-		if (role_attribute[6] != 0){
+		if (role_attribute[7] != 0){
 			delete_sth_l1(x,y,'@');
-			role_attribute[6]--;
+			role_attribute[7]--;
 		}
 	//it is a special door
 }else if(mvinch_l1(x, y) == '^'){
-		role_attribute[6]++;
+		role_attribute[7]++;
 		delete_sth_l1(x,y,'^');
-	//it is a HP_box, it will increase HP by 200
+	//it is a HP_box, it will increase HP by 100
 }else if(mvinch_l1(x, y) == 'H'){
 		delete_sth_l1(x,y,'H');
 		IsH_l1 = true;
-		role_attribute[2] = role_attribute[2] + 200;
+		role_attribute[2] = role_attribute[2] + 100;
 	//it is a STK_box, it will increase ATK by 5
 }else if(mvinch_l1(x, y) == 'A'){
 		delete_sth_l1(x,y,'A');
@@ -1112,4 +1154,13 @@ void floor_1_main(int *role_attribute, std::string user_name, bool &GameOver){
 			logic_l1(role_attribute, user_name, GameOver);
 		}
 	}
+	delete [] monster_l1;
+	delete [] door_l1;
+	delete [] key_l1;
+	delete [] random_monster_l1;
+	delete [] HP_box_l1;
+	delete [] ATK_box_l1;
+	delete [] DEF_box_l1;
+	delete [] store_l1;
+	delete [] guidance_l1;
 }
