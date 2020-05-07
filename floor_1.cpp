@@ -57,12 +57,15 @@ bool wall_l1[12][22];
 enum eDirection{STOP = 0, LEFT, RIGHT, UP, DOWN};
 eDirection dir_l1;
 
+// move the cursor
 void move_l1(int x,int y){
   printf("\033[%d;%dH", (x+1), (y+1));
 }
+// clear the screen
 void clear_l1(){
   printf("\033[2J");
 }
+// return the symbol
 int getch_l1(void)
 {
     struct termios oldattr, newattr;
@@ -140,6 +143,7 @@ char mvinch_l1(int x, int y){
 	}
   return (' ');
 }
+// save the game
 void saving_status_l1(int * role_attribute,string user_name, bool &GameOver){
 	move_l1(12,0);
 	string filename = "output/"+user_name + ".txt";
@@ -267,6 +271,7 @@ void Setup_l1(){
   }
 
 }
+// level up
 void upgrade_l1(int* role_attribute){
 	//atk
 	role_attribute[3] = role_attribute[3] + 5;
@@ -275,7 +280,7 @@ void upgrade_l1(int* role_attribute){
 	//HP
 	role_attribute[2] = role_attribute[5] + 100;
 }
-
+// modify role_attribute
 void update_attribute_l1(int hp_value, int atk_value, int def_value,
 	int add_exp, int add_gold, int* role_attribute){
 	int hp = hp_value, atk = atk_value, def = def_value;
@@ -294,6 +299,7 @@ void update_attribute_l1(int hp_value, int atk_value, int def_value,
 		upgrade_l1(role_attribute);
 	}
 }
+// monster's test
 bool mtest(){
   move_l1(12,0);
   int a = rand()%6;
@@ -396,7 +402,7 @@ bool mtest(){
   }
   if (a == 3){
     move_l1(12,0);
-    printf("chmod o+rx file means giving everyone the read and execute permission");
+    printf("chmod o+rx file means giving everyone the read and execute permission？");
     move_l1(13,0);
     printf("T/F");
     char c = getch_l1();
@@ -458,7 +464,7 @@ bool mtest(){
   }
   if (a == 5){
     move_l1(12,0);
-    printf("In shell script, '$#' means the number of command line variables given");
+    printf("In shell script, '$#' means the number of command line variables given？");
     move_l1(13,0);
     printf("T/F");
     char c = getch_l1();
@@ -607,7 +613,7 @@ void guide(int x, int y, std::string user_name){
 		move_l1(13,0);
 		printf("\033[K");
 		move_l1(12,0);
-		printf("press 0 to save the game; press q to quit the game");
+		printf("press 0 to save the game; press q to quit the game;");
     printf(" (press p to continue)\n");
     while (getch_l1() != 'p'){
     }
@@ -617,10 +623,11 @@ void guide(int x, int y, std::string user_name){
     printf("\033[K");
     move_l1(12,0);
     printf("Go ahead and try to find Dr.L!");
+		printf(" (press p to continue)\n");
   }
 }
 
-
+// eliminate symbol
 void delete_sth_l1(int x, int y, char n){
 	if(n == '@'){
 		for(int i = 0; i < printable_num_fixed_door_l1; ++i){
@@ -877,7 +884,7 @@ void print_prumpt_l1(char n, int * role_attribute){
 		printf("DEF +5!");
 	}
 }
-
+// show some guidance information
 void show_info_l1(int* role_attribute){
 	int hp_0 = hp_needed_beat_0_l1(role_attribute[3], role_attribute[4]);
 	int hp_M = hp_needed_beat_M_l1(role_attribute[3], role_attribute[4]);
@@ -902,6 +909,7 @@ void show_info_l1(int* role_attribute){
   printf("'q' to quit the game.\n");
 
 }
+// store shopping
 void shopping(int *role_attribute){
   move_l1(12,0);
   printf("happy shopping!\n");
@@ -1008,8 +1016,8 @@ void input_l1(int* role_attribute, std::string user_name, bool &GameOver){
       int hp_M = hp_needed_beat_M_l1(role_attribute[3], role_attribute[4]);
       if (hp_M >= 0 && hp_M < role_attribute[2]){
         update_attribute_l1(100,25,10,9,10, role_attribute);
+				delete_sth_l1(m_x,m_y,'M');
       }
-      delete_sth_l1(m_x,m_y,'M');
     }
     Is_m = false;
   } else if (Is_s == true){
