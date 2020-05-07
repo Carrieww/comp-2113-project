@@ -1,4 +1,4 @@
-//Floor 1
+//Floor 4
 #include <string>
 #include <time.h>
 #include "floor.h"
@@ -10,14 +10,11 @@
 using namespace std;
 /* symbol used on floor 1
 #: wall_l4, space between wall_l4s is the door connecting different floor
-H: HP_box, increase 200 HP
-A: ATK_box, increase 5 ATK
-D: DEF_box, increase 5 DEF
 @: door    ^: key for @
+$: special door &: ket for $
 M: monsters with fixed positions
 m: small monsters with random positions
 ?: guidance
-S: store
 */
 
 //global variables
@@ -50,13 +47,15 @@ bool save_l4, IsH_l4, IsA_l4, IsD_l4, Is_s_l4ur_l4, Is_Info_l4, Is_guidance_l4, 
 bool wall_l4[12][22];
 enum eDirection{STOP = 0, LEFT, RIGHT, UP, DOWN};
 eDirection dir_l4;
-
+// move the cursor
 void move_l4(int x,int y){
   printf("\033[%d;%dH", (x+1), (y+1));
 }
+// clear the screen
 void clear_l4(){
   printf("\033[2J");
 }
+// return the keyboard input
 int getch_l4(void)
 {
     struct termios oldattr, newattr;
@@ -69,6 +68,7 @@ int getch_l4(void)
     tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
     return ch;
 }
+// return the symbol
 char mvinch_l4(int x, int y){
   if (wall_l4[x][y] == true){
     return ('#');
@@ -105,6 +105,7 @@ char mvinch_l4(int x, int y){
 	}
   return (' ');
 }
+//saving the game
 void saving_status_l4(int * role_attribute,string user_name, bool &GameOver){
 	move_l4(12,0);
 	string filename = "output/"+user_name + ".txt";
@@ -162,8 +163,8 @@ void Setup_l4(){
 	for(int i = 0; i < num_fixed_monster_l4; i++){
 		monster_l4[i].x = monster_x_l4[i];
 		monster_l4[i].y = monster_y_l4[i];
-		monster_l4[i].HP = 1000;
-		monster_l4[i].ATK = 100;
+		monster_l4[i].HP = 2000;
+		monster_l4[i].ATK = 200;
 		monster_l4[i].DEF = 100;
     monster_l4[i].type = 'M';
 	}
@@ -193,8 +194,8 @@ void Setup_l4(){
 		random_monster_l4[i].x = small_monster_x_l4[i];
 		random_monster_l4[i].y = small_monster_y_l4[i];
 		random_monster_l4[i].HP = 100;
-		random_monster_l4[i].ATK = 30;
-		random_monster_l4[i].DEF = 20;
+		random_monster_l4[i].ATK = 50;
+		random_monster_l4[i].DEF = 50;
     random_monster_l4[i].type = 'm';
 	}
 
@@ -208,6 +209,7 @@ void Setup_l4(){
   }
 
 }
+// level up
 void upgrade_l4(int* role_attribute){
 	//atk
 	role_attribute[3] = role_attribute[3] + 5;
@@ -216,7 +218,7 @@ void upgrade_l4(int* role_attribute){
 	//HP
 	role_attribute[2] = role_attribute[5] + 100;
 }
-
+// update role_attribute
 void update_attribute_l4(int hp_value, int atk_value, int def_value,
 	int add_exp, int add_gold, int* role_attribute){
 	int hp = hp_value, atk = atk_value, def = def_value;
@@ -235,12 +237,13 @@ void update_attribute_l4(int hp_value, int atk_value, int def_value,
 		upgrade_l4(role_attribute);
 	}
 }
+// monster's test
 bool mtest_l4(){
   move_l4(12,0);
   int a = rand()%3;
   if (a == 0){
     move_l4(12,0);
-    printf("If we intend to open a file, f.fail() function can check if the file exists or not");
+    printf("If we intend to open a file, f.fail() function can check if the file exists or not?");
     move_l4(13,0);
     printf("T/F");
     char c = getch_l4();
@@ -271,7 +274,7 @@ bool mtest_l4(){
   }
   if (a == 1){
     move_l4(12,0);
-    printf("Setprecision() function can show a number with certain decimal places");
+    printf("Setprecision() function can show a number with certain decimal places?");
     move_l4(13,0);
     printf("T/F");
     char c = getch_l4();
@@ -302,7 +305,7 @@ bool mtest_l4(){
   }
   if (a == 2){
     move_l4(12,0);
-    printf("We can change the content of an array using '=' after declaration");
+    printf("We can change the content of an array using '=' after declaration?");
     move_l4(13,0);
     printf("T/F");
     char c = getch_l4();
@@ -545,7 +548,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     }
   }
   if (x==7 && y==3){
-    printf("Welcome, young man");
+    printf("Welcome, young man.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -554,7 +557,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("I guess you want to seek for Dr.L");
+    printf("I guess you want to seek for Dr.L.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -563,7 +566,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("I am one of his teaching assitants");
+    printf("I am one of his teaching assitants.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -572,7 +575,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("He has blocked himself in this tower for years");
+    printf("He has blocked himself in this tower for years.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -581,7 +584,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("No one knows why but he seemed to be really upset");
+    printf("No one knows why but he seemed to be really upset.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -599,7 +602,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("- Give him or her this key");
+    printf("- Give him or her this key.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -608,7 +611,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("That's all I can help you");
+    printf("That's all I can help you.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -617,7 +620,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("Please help Dr. L and here is your key");
+    printf("Please help Dr. L and here is your key.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -626,7 +629,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("Dr. L is right above me.");
+    printf("Hint: Dr. L is right above me.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -637,7 +640,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     role_attribute[8] = 1;
   }
   if (x==3 && y==3){
-    printf("Finally, you are here. I am the true Dr. L");
+    printf("Finally, you are here. I am the true Dr. L.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -646,7 +649,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("I have been waiting someone for years");
+    printf("I have been waiting someone for years.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -655,7 +658,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("10 years ago, I loved teaching and there were so many talents who learned from me");
+    printf("10 years ago, I loved teaching and there were so many talents who learned from me.");
 		printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -664,7 +667,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("However, with the salary of programmers rising rapidly");
+    printf("However, with the salary of programmers rising rapidly,");
 		printf(" (press p to continue)\n");
 		while (getch_l4() != 'p'){
 		}
@@ -673,7 +676,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
 		move_l4(13,0);
 		printf("\033[K");
 		move_l4(12,0);
-		printf("They just come here to get my famous code template");
+		printf("they just come here to get my famous code template.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -682,7 +685,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("They even don't want to learn about the algorithm behind");
+    printf("They even don't want to learn about the algorithm behind.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -691,7 +694,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("Just want to get a well-paid job and have no interest in learning");
+    printf("Just want to get a well-paid job and have no interest in learning.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -700,7 +703,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("I soon got disappointed and no longer wanted to teach");
+    printf("I soon got disappointed and no longer wanted to teach.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -709,7 +712,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("So I designed the tower of programmer and stayed here");
+    printf("So I designed the tower of programmer and stayed here.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -718,7 +721,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("Anyone who is able to see me must be interested in programming");
+    printf("Anyone who is able to see me must be interested in programming.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -727,7 +730,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("And more importantly, want to pay efforts into learning about it");
+    printf("And more importantly, want to pay efforts into learning about it.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -745,7 +748,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("The tower is my first lesson for you, actually");
+    printf("The tower is my first lesson for you, actually.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -754,7 +757,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("You must learn from hard work and answer questions");
+    printf("You must learn from hard work and answer questions.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -763,7 +766,7 @@ void guide(int x, int y, std::string user_name, int *role_attribute, bool &GameO
     move_l4(13,0);
     printf("\033[K");
     move_l4(12,0);
-    printf("But should never look for a free lunch");
+    printf("But should never look for a free lunch.");
     printf(" (press p to continue)\n");
     while (getch_l4() != 'p'){
     }
@@ -1017,7 +1020,7 @@ void input_l4(int* role_attribute, std::string user_name, bool &GameOver){
       monster_l4[0].HP = monster_l4[0].HP / 2;
       int hp_M = hp_needed_beat_M_l4(role_attribute[3], role_attribute[4]);
       if (hp_M >= 0 && hp_M < role_attribute[2]){
-        update_attribute_l4(50,12,5,9,10, role_attribute);
+        update_attribute_l4(1000,100,50,9,10, role_attribute);
         delete_sth_l4(m_x_l4,m_y_l4,'M');
       }
       monster_l4[0].ATK = a;
@@ -1026,9 +1029,9 @@ void input_l4(int* role_attribute, std::string user_name, bool &GameOver){
     } else {
       int hp_M = hp_needed_beat_M_l4(role_attribute[3], role_attribute[4]);
       if (hp_M >= 0 && hp_M < role_attribute[2]){
-        update_attribute_l4(100,25,10,9,10, role_attribute);
+        update_attribute_l4(2000,200,100,9,10, role_attribute);
+				delete_sth_l4(m_x_l4,m_y_l4,'M');
       }
-      delete_sth_l4(m_x_l4,m_y_l4,'M');
     }
     Is_m_l4 = false;
   }
@@ -1103,7 +1106,7 @@ void logic_function_1_l4(int x, int y, int &change, int b, bool is_down,bool is_
 }else if(mvinch_l4(x, y) == 'm'){
 		int hp_0 = hp_needed_beat_0_l4(role_attribute[3], role_attribute[4]);
 		if (hp_0 >= 0 && hp_0 < role_attribute[2]){
-			update_attribute_l4(50,15,5,3,5,role_attribute);
+			update_attribute_l4(100,50,50,3,5,role_attribute);
 			delete_sth_l4(x,y,'m');
 		}else{
 			x_l4 = x_l4;
