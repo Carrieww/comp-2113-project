@@ -427,7 +427,7 @@ void print_prumpt_l3(char n, int* role_attribute){
 			cout << "Collect '!' and give it back to me, I can tell you how to rescue Dr.L.\n";
 		}else if(role_attribute[9] == 1){
 			role_attribute[9]--;
-			cout << "Great! The Big Big monster is afraid of snakes.\nGo and save Dr.L!\n";
+			cout << "Great! Remember: They key to success is hard work.\nGo and save Dr.L!\n";
 		}
 	}
 }
@@ -747,7 +747,7 @@ void input_l3(int * role_attribute, string user_name, bool &GameOver){
 		move_l3(14,0);
 		cout << "Hello! The forth floor is extremely dangerous.\n";
 		cout << "You should equip yourself if you have enough Gold.\n";
-		cout << "HP+1000: 100(press '1')\nATK+20: 50(press '2')\nDEF+20: 50(press'3')\n(press '0' to leave)\n";
+		cout << "HP+1000: 100(press '1')\nATK+20: 50(press '2')\nDEF+20: 50(press'3')\n(press '9' to leave)\n";
 		char ch = getch_l3();
 		if(ch == '1'){
 			if(role_attribute[6] >= 100){
@@ -770,7 +770,7 @@ void input_l3(int * role_attribute, string user_name, bool &GameOver){
 			}
 			dir_l3 = STOP;
 			return;
-		}else if(ch == '0'){
+		}else if(ch == '9'){
 			Leave_Shop_l3 = true;
 			dir_l3 = STOP;
 			Is_Shop_l3 = false;
