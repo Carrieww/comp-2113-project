@@ -637,6 +637,8 @@ void Draw_l3(int *role_attribute){
 	cout << "'0' to save the game.";
 	move_l3(1,40);
 	cout << "'q' to quit the game.";
+	move_l3(2,40);
+	cout << "'i' to help.";
 	move_l3(12,0);
 }
 
