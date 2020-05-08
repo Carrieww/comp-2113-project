@@ -37,3 +37,8 @@ Welcome to the "Tower of the programmer"! You are a novice programmer who are es
    3. After 'main' is successfully created, type './main'
    4. Then, enjoy your game! You can save and have a rest at anytime you want.
    5. Each time you save your status and continue your game, the whole map will be reset so that you can freely defeat monsters and gain exp & gold!
+
+5. Video introduction
+Link: https://drive.google.com/file/d/1FemMH0oYqkrsUpVmdB9rYWJM0WBeFGE3/view?usp=sharing
+
+
