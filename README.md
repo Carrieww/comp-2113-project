@@ -36,3 +36,4 @@ Welcome to the "Tower of the programmer"! You are a novice programmer who are es
    2. Secondly, open the terminal and type 'make main'
    3. After 'main' is successfully created, type './main'
    4. Then, enjoy your game! You can save and have a rest at anytime you want.
+   5. Each time you save your status and continue your game, the whole map will be reset so that you can freely defeat monsters and gain exp & gold!
