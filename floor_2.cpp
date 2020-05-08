@@ -649,6 +649,8 @@ void Draw(int* role_attribute){
 	cout << "'0' to save the game.";
 	move(1,40);
 	cout << "'q' to quit the game.";
+	move(2,40);
+	cout << "'i' to help.";
 	move(12,0);
 }
 
