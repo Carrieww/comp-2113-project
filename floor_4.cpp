@@ -970,6 +970,8 @@ void Draw_l4(int* role_attribute){
 	printf("'0' to save the game.");
 	move_l4(1,40);
 	printf("'q' to quit the game.");
+	move_l4(2,40);
+	printf("'i' to help.");
 	move_l4(12,0);
 }
 
