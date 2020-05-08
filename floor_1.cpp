@@ -869,6 +869,8 @@ void Draw_l1(int* role_attribute){
 	printf("'0' to save the game.");
 	move_l1(1,40);
 	printf("'q' to quit the game.");
+	move_l1(2,40);
+	printf("'i' to help.");
 	move_l1(12,0);
 }
 
@@ -907,6 +909,7 @@ void show_info_l1(int* role_attribute){
 	printf("'!' represents treasures. They will help you.\n");
 	printf("'0' to save the game.\n");
   printf("'q' to quit the game.\n");
+	printf("'S' is a store to increase your power using your gold.\n");
 
 }
 // store shopping
