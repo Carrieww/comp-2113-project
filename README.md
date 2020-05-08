@@ -25,7 +25,7 @@ Welcome to the "Tower of the programmer"! You are a novice programmer who are es
  * Enjoy this game and try to be a good programmer!  
 
 3. List of features
-   1. Apart from some big bosses, other rivals are generated randomly for each game. Some monsters will ask random questions.
+   1. Small monsters represented by 'm' have randomly generated locations for each game. The question asked by big monsters represented by 'M' are also randomly generated. 
    2. For the map, we will use dynamic array to store the status of each point, e.g. rival, boss, door, wall, special item, etc. For the status of the player, we will use a 1-dimension array to store the attribute of the character plus the location of the character including the floor of the tower.
    3. We will use dynamic memory management to optimize the efficiency of memory usage, after the player presses 'q' to exit the game, we will release the memory allocated.
    4. Once the player decided to save the game status and leave, we will output a text file called "player_name.txt" to record the player's current status. If the program does not detect such text file named "player_name.txt", it will set level 1 as the default input, otherwise, it will input the file and load corresponding data. 
