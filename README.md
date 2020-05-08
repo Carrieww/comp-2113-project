@@ -10,7 +10,7 @@
 Welcome to the "Tower of the programmer"! You are a novice programmer who are especially interested in writing codes. And the most experienced and prestigous coding king in the world -- Dr. L, is trapped in one of the most dangerous places in this world, Tower of the programmer. Your task is to rescue Dr. L. Certainly, you have to sharpen your programing skills on the way of this adventure so as to achieve the highest floor of programming and reach the top of the tower, where you can finally rescue Dr. L. Why would Dr. L be trapped in the tower? Who would you encounter in the tower? They are all left for you to discover. What are you waiting for? Come and join this wonderful adventure! 
 2. Basic game rules  
  * Maximum number of player: 1  
- * Basic operation: Player can use 'w', 'a', 's', 'd' to control the character; 'q' to exit the game; '0' to save the current game status; Other special operations, such as clicking 'i' for more information of rivals, will be instructed in the game. 
+ * Basic operation: Player can use 'w', 'a', 's', 'd' to control the character displayed by 'c'; 'q' to exit the game; '0' to save the current game status; Other special operations, such as clicking 'i' for more information of rivals, will be instructed in the game. 
  * Character attribute:   
     ATK -- attack  
     DEF -- defense  
@@ -21,14 +21,14 @@ Welcome to the "Tower of the programmer"! You are a novice programmer who are es
     Gold -- purchase  
     Keys(^ for @, & for $) -- open the door in each floor of the tower  
  * Battle rule: It is a turn based battle. For each turn, you will suffer a decrease in HP determined by (your rival's ATK - your DEF). Your rival will suffer a decrease in HP determined by (your ATK - your rival's DEF). When one's HP decreases below or equal to 0, the battle ends.
- * Special rules: Your EXP and gold will increase by winning battles. You can collect, sell or buy special items to increase your ATK, DEF, HP and EXP. There are two keys: ^ and & to open the door of @ and $ and the number of keys you possess will appear on your screen.  
+ * Special rules: Your EXP, ATK, DEF and gold will increase by winning battles. You can collect, sell or buy special items to increase your ATK, DEF, HP and EXP. There are two keys: ^ and & to open the door of @ and $ respectively. The number of keys you possess will appear on the screen.  
  * Enjoy this game and try to be a good programmer!  
 
 3. List of features
    1. Small monsters represented by 'm' have randomly generated locations for each game. The question asked by big monsters represented by 'M' are also randomly generated. 
-   2. For the map, we will use dynamic array to store the status of each point, e.g. rival, boss, door, wall, special item, etc. For the status of the player, we will use a 1-dimension array to store the attribute of the character plus the location of the character including the floor of the tower.
-   3. We will use dynamic memory management to optimize the efficiency of memory usage, after the player presses 'q' to exit the game, we will release the memory allocated.
-   4. Once the player decided to save the game status and leave, we will output a text file called "player_name.txt" to record the player's current status. If the program does not detect such text file named "player_name.txt", it will set level 1 as the default input, otherwise, it will input the file and load corresponding data. 
+   2. For the map, we use dynamic array to store the status of each point, e.g. rival, boss, door, special item, etc. For the status of the player, we use a 1-dimension array to store the attribute of the character and the floor of the tower, especially for loading status next time.
+   3. We use dynamic memory management to optimize the efficiency of memory usage, after the player presses 'q' to exit the game, we will release the memory allocated.
+   4. Once the player decided to save the game status and leave, we will output a text file called "player_name.txt" to output file to record the player's current status. If the program does not detect such text file named "player_name.txt", it will set level 1 and default role attributes as the default input, otherwise, it will input the file and load corresponding data.
    5. Since each floor of the tower is a bit different, we will use 4 different files to store different floors, and the player can simply execute our main program to get into the game.
 
 4. How to play
@@ -36,7 +36,7 @@ Welcome to the "Tower of the programmer"! You are a novice programmer who are es
    2. Secondly, open the terminal and type 'make main'
    3. After 'main' is successfully created, type './main'
    4. Then, enjoy your game! You can save and have a rest at anytime you want.
-   5. Each time you save your status and continue your game, the whole map will be reset so that you can freely defeat monsters and gain exp & gold!
+   5. Each time you save your status and continue your game, the whole map will be reset and you will be on the floor you left last time with all attributes saved last time, but all the seting on  the floor will still be reset!
 
 5. Video introduction
 Link: https://drive.google.com/file/d/1FemMH0oYqkrsUpVmdB9rYWJM0WBeFGE3/view?usp=sharing
