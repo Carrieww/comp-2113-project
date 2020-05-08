@@ -1161,7 +1161,7 @@ void floor_4_main(int *role_attribute, std::string user_name, bool &GameOver){
 	}
 	delete [] monster_l4;
 	delete [] door_l4;
-  delete [] special_door_l4;
+        delete [] special_door_l4;
 	delete [] random_monster_l4;
 	delete [] guidance_l4;
 }
